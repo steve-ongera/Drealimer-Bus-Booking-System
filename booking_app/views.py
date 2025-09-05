@@ -11,6 +11,7 @@ from datetime import timedelta
 import json
 import uuid
 from .models import *
+
 from .forms import SearchForm, BookingForm, GuestBookingForm
 
 def home(request):

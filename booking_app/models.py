@@ -131,6 +131,12 @@ class Seat(models.Model):
     def __str__(self):
         return f"{self.bus} - Seat {self.seat_number}"
 
+# In your models.py, replace the Booking model with this:
+
+def generate_booking_id():
+    """Generate a unique booking ID"""
+    return str(uuid.uuid4())[:12].upper()
+
 class Booking(models.Model):
     STATUS_CHOICES = [
         ('PENDING', 'Pending Payment'),
@@ -139,7 +145,7 @@ class Booking(models.Model):
         ('EXPIRED', 'Expired'),
     ]
     
-    booking_id = models.CharField(max_length=20, unique=True, default=uuid.uuid4)
+    booking_id = models.CharField(max_length=20, unique=True, default=generate_booking_id)
     trip = models.ForeignKey(Trip, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     
@@ -176,7 +182,8 @@ class Booking(models.Model):
     
     def __str__(self):
         return f"Booking {self.booking_id} - {self.passenger_name}"
-
+    
+    
 class BookingSeat(models.Model):
     booking = models.ForeignKey(Booking, on_delete=models.CASCADE, related_name='booked_seats')
     seat = models.ForeignKey(Seat, on_delete=models.CASCADE)
