@@ -1,0 +1,202 @@
+{% extends 'base.html' %}
+
+{% block title %}Search Results - {{ origin }} to {{ destination }}{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-12">
+            <!-- Search Summary -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h4 class="mb-0">
+                                <i class="bi bi-bus-front text-primary"></i>
+                                {{ origin }} <i class="bi bi-arrow-right mx-2"></i> {{ destination }}
+                            </h4>
+                            <p class="text-muted mb-0">
+                                <i class="bi bi-calendar3"></i> {{ travel_date|date:"F j, Y" }} • 
+                                {{ trips|length }} trip{{ trips|length|pluralize }} found
+                            </p>
+                        </div>
+                        <div class="col-md-4 text-md-end">
+                            <a href="/" class="btn btn-outline-primary">
+                                <i class="bi bi-arrow-left"></i> New Search
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {% if trips %}
+                <!-- Trips List -->
+                <div class="row g-4">
+                    {% for trip in trips %}
+                    <div class="col-12">
+                        <div class="card trip-card">
+                            <div class="card-body p-4">
+                                <div class="row align-items-center">
+                                    <!-- Company Info -->
+                                    <div class="col-md-2">
+                                        <div class="text-center">
+                                            {% if trip.bus.company.logo %}
+                                                <img src="{{ trip.bus.company.logo.url }}" alt="{{ trip.bus.company.name }}" class="img-fluid mb-2" style="max-height: 50px;">
+                                            {% else %}
+                                                <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 50px; height: 50px;">
+                                                    <i class="bi bi-bus-front text-primary"></i>
+                                                </div>
+                                            {% endif %}
+                                            <h6 class="mb-0">{{ trip.bus.company.name }}</h6>
+                                            <small class="text-muted">{{ trip.bus.bus_type }}</small>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Trip Details -->
+                                    <div class="col-md-6">
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <h5 class="mb-1">{{ trip.departure_time|time:"H:i" }}</h5>
+                                                <p class="mb-0 text-muted">{{ trip.route.origin.name }}</p>
+                                                <small class="text-muted">{{ trip.departure_time|date:"M j" }}</small>
+                                            </div>
+                                            <div class="col-6">
+                                                <h5 class="mb-1">{{ trip.arrival_time|time:"H:i" }}</h5>
+                                                <p class="mb-0 text-muted">{{ trip.route.destination.name }}</p>
+                                                <small class="text-muted">{{ trip.arrival_time|date:"M j" }}</small>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Journey Duration -->
+                                        <div class="mt-3">
+                                            <div class="d-flex align-items-center">
+                                                <div class="flex-grow-1">
+                                                    <div class="progress" style="height: 4px;">
+                                                        <div class="progress-bar" role="progressbar" style="width: 100%;"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <small class="text-muted">
+                                                <i class="bi bi-clock"></i> 
+                                                Duration: {{ trip.route.estimated_duration }}
+                                            </small>
+                                        </div>
+                                        
+                                        <!-- Intermediate Stops -->
+                                        {% if trip.route.stops.exists %}
+                                        <div class="mt-2">
+                                            <small class="text-muted">
+                                                <i class="bi bi-geo-alt"></i> Stops: 
+                                                {% for stop in trip.route.stops.all|slice:":3" %}
+                                                    {{ stop.location.name }}{% if not forloop.last %}, {% endif %}
+                                                {% endfor %}
+                                                {% if trip.route.stops.count > 3 %}
+                                                    <span class="badge bg-light text-dark ms-1">+{{ trip.route.stops.count|add:"-3" }} more</span>
+                                                {% endif %}
+                                            </small>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <!-- Pricing & Action -->
+                                    <div class="col-md-4 text-md-end">
+                                        <div class="mb-3">
+                                            <h4 class="text-primary mb-0">From KSh {{ trip.base_price|floatformat:0 }}</h4>
+                                            <small class="text-muted">per seat</small>
+                                        </div>
+                                        
+                                        <!-- Available Seats -->
+                                        <div class="mb-3">
+                                            {% with available_seats=trip.bus.total_seats %}
+                                            <span class="badge bg-success-subtle text-success">
+                                                <i class="bi bi-check-circle"></i> {{ available_seats }} seats available
+                                            </span>
+                                            {% endwith %}
+                                        </div>
+                                        
+                                        <!-- Amenities -->
+                                        <div class="mb-3">
+                                            <small class="text-muted d-block">
+                                                {% if trip.bus.bus_type == 'VIP' %}
+                                                    <i class="bi bi-wifi text-success"></i>
+                                                    <i class="bi bi-cup-hot text-success"></i>
+                                                    <i class="bi bi-tv text-success"></i>
+                                                {% elif trip.bus.bus_type == 'BUSINESS' %}
+                                                    <i class="bi bi-wifi text-success"></i>
+                                                    <i class="bi bi-tv text-success"></i>
+                                                {% endif %}
+                                                <i class="bi bi-shield-check text-success"></i>
+                                            </small>
+                                        </div>
+                                        
+                                        <a href="{% url 'trip_seats' trip.id %}" class="btn btn-primary">
+                                            <i class="bi bi-car-front"></i> Select Seats
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <!-- Pagination (if needed) -->
+                <div class="row mt-4">
+                    <div class="col-12 text-center">
+                        <p class="text-muted">Showing all available trips for {{ travel_date|date:"F j, Y" }}</p>
+                    </div>
+                </div>
+                
+            {% else %}
+                <!-- No Trips Found -->
+                <div class="text-center py-5">
+                    <div class="mb-4">
+                        <i class="bi bi-bus-front text-muted" style="font-size: 4rem;"></i>
+                    </div>
+                    <h3 class="text-muted mb-3">No trips found</h3>
+                    <p class="text-muted mb-4">
+                        Sorry, we couldn't find any trips from {{ origin }} to {{ destination }} on {{ travel_date|date:"F j, Y" }}.
+                    </p>
+                    
+                    <!-- Suggestions -->
+                    <div class="card bg-light border-0 d-inline-block">
+                        <div class="card-body">
+                            <h6 class="card-title">Try these suggestions:</h6>
+                            <ul class="list-unstyled mb-0">
+                                <li><i class="bi bi-check text-success"></i> Check if the route is available</li>
+                                <li><i class="bi bi-check text-success"></i> Try a different date</li>
+                                <li><i class="bi bi-check text-success"></i> Look for nearby pickup locations</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <a href="/" class="btn btn-primary">
+                            <i class="bi bi-arrow-left"></i> Search Again
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Add hover effects to trip cards
+    $('.trip-card').hover(
+        function() {
+            $(this).addClass('shadow-lg');
+        },
+        function() {
+            $(this).removeClass('shadow-lg');
+        }
+    );
+    
+    // Update available seats count (you can make AJAX calls here)
+    // This is a placeholder for real-time seat availability updates
+});
+</script>
+{% endblock %}

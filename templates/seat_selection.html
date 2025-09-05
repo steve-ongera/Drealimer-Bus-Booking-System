@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block title %}Select Seats - {{ trip.route }}{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <!-- Trip Info Header -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h4 class="mb-2">
+                        <i class="bi bi-bus-front text-primary"></i>
+                        {{ trip.route.origin.name }} <i class="bi bi-arrow-right mx-2"></i> {{ trip.route.destination.name }}
+                    </h4>
+                    <div class="row text-muted">
+                        <div class="col-md-6">
+                            <small>
+                                <i class="bi bi-calendar3"></i> {{ trip.departure_time|date:"F j, Y" }} <br>
+                                <i class="bi bi-clock"></i> {{ trip.departure_time|time:"H:i" }} - {{ trip.arrival_time|time:"H:i" }}
+                            </small>
+                        </div>
+                        <div class="col-md-6">
+                            <small>
+                                <i class="bi bi-building"></i> {{ trip.bus.company.name }} <br>
+                                <i class="bi bi-star-fill text-warning"></i> {{ trip.bus.bus_type }} Class
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <h5 class="text-primary mb-0">Base Price: KSh {{ trip.base_price|floatformat:0 }}</h5>
+                    <small class="text-muted">per seat</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Seat Layout -->
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-car-front"></i> Select Your Seats
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <!-- Seat Legend -->
+                    <div class="seat-legend mb-4">
+                        <div class="legend-item">
+                            <div class="legend-seat available"></div>
+                            <span>Available</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-seat selected"></div>
+                            <span>Selected</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-seat booked"></div>
+                            <span>Booked</span>
+                        </div>
+                        {% if trip.bus.bus_type == 'VIP' or trip.bus.bus_type == 'MIXED' %}
+                        <div class="legend-item">
+                            <div class="legend-seat vip"></div>
+                            <span>VIP (+50%)</span>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Bus Layout -->
+                    <div class="bus-layout">
+                        <!-- Driver

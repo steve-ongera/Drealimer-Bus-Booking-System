@@ -1,0 +1,24 @@
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    # Main pages
+    path('', views.home, name='home'),
+    path('search/', views.search_trips, name='search_trips'),
+    
+    # Trip and booking flow
+    path('trip/<int:trip_id>/seats/', views.trip_seats, name='trip_seats'),
+    path('trip/<int:trip_id>/booking/', views.booking_details, name='booking_details'),
+    path('payment/<str:booking_id>/', views.payment, name='payment'),
+    path('confirmation/<str:booking_id>/', views.booking_confirmation, name='booking_confirmation'),
+    
+    # AJAX endpoints
+    path('api/location-autocomplete/', views.location_autocomplete, name='location_autocomplete'),
+    path('api/reserve-seats/', views.reserve_seats, name='reserve_seats'),
+    path('api/process-payment/', views.process_payment, name='process_payment'),
+    
+    # Admin seat layout management
+    path('admin/seat-layouts/', views.admin_seat_layout, name='admin_seat_layout'),
+    path('admin/seat-layouts/<int:layout_id>/', views.admin_seat_layout, name='admin_seat_layout_edit'),
+    path('api/save-seat-layout/', views.save_seat_layout, name='save_seat_layout'),
+]

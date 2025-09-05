@@ -1,0 +1,220 @@
+{% extends 'base.html' %}
+
+{% block title %}Dream Line - Book Your Bus Travel{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold mb-3">Travel Comfortably Across Kenya</h1>
+                <p class="lead mb-4">Book your bus tickets online with ease. Choose your preferred seat and travel in comfort.</p>
+            </div>
+            <div class="col-lg-6">
+                <div class="card search-card">
+                    <div class="card-body p-4">
+                        <h3 class="card-title text-center mb-4">
+                            <i class="bi bi-search"></i> Search Trips
+                        </h3>
+                        
+                        <form method="post" action="{% url 'search_trips' %}" id="search-form">
+                            {% csrf_token %}
+                            
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="id_origin" class="form-label">From</label>
+                                    <div class="position-relative">
+                                        <i class="bi bi-geo-alt position-absolute" style="top: 50%; left: 10px; transform: translateY(-50%); z-index: 5;"></i>
+                                        <input type="text" class="form-control ps-4" id="origin-input" placeholder="Enter origin city" required>
+                                        <input type="hidden" name="origin" id="id_origin">
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <label for="id_destination" class="form-label">To</label>
+                                    <div class="position-relative">
+                                        <i class="bi bi-geo-alt-fill position-absolute" style="top: 50%; left: 10px; transform: translateY(-50%); z-index: 5;"></i>
+                                        <input type="text" class="form-control ps-4" id="destination-input" placeholder="Enter destination city" required>
+                                        <input type="hidden" name="destination" id="id_destination">
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <label for="id_travel_date" class="form-label">Travel Date</label>
+                                    <div class="position-relative">
+                                        <i class="bi bi-calendar3 position-absolute" style="top: 50%; left: 10px; transform: translateY(-50%); z-index: 5;"></i>
+                                        {{ search_form.travel_date }}
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6 d-flex align-items-end">
+                                    <button type="submit" class="btn btn-primary w-100 py-2">
+                                        <i class="bi bi-search"></i> Search Trips
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold">Why Choose Dream Line?</h2>
+            <p class="lead text-muted">Experience the best in bus travel with our premium services</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100 text-center border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                            <i class="bi bi-shield-check text-primary" style="font-size: 2rem;"></i>
+                        </div>
+                        <h4>Safe & Secure</h4>
+                        <p class="text-muted">Professional drivers and well-maintained buses ensure your safety throughout the journey.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card h-100 text-center border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                            <i class="bi bi-phone text-success" style="font-size: 2rem;"></i>
+                        </div>
+                        <h4>Easy Booking</h4>
+                        <p class="text-muted">Book your tickets online in minutes. Choose your preferred seat and pay securely via M-Pesa.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card h-100 text-center border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="bg-info bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                            <i class="bi bi-clock text-info" style="font-size: 2rem;"></i>
+                        </div>
+                        <h4>On Time</h4>
+                        <p class="text-muted">We value your time. Our buses run on schedule, ensuring you reach your destination on time.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Popular Routes Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-6 fw-bold">Popular Routes</h2>
+            <p class="text-muted">Most traveled destinations with Dream Line</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <h5 class="card-title">Nairobi - Mombasa</h5>
+                        <p class="text-muted mb-3">From KSh 1,500</p>
+                        <small class="text-muted">8 hours journey</small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <h5 class="card-title">Nairobi - Kisumu</h5>
+                        <p class="text-muted mb-3">From KSh 1,200</p>
+                        <small class="text-muted">6 hours journey</small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <h5 class="card-title">Nairobi - Eldoret</h5>
+                        <p class="text-muted mb-3">From KSh 1,000</p>
+                        <small class="text-muted">5 hours journey</small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <h5 class="card-title">Mombasa - Malindi</h5>
+                        <p class="text-muted mb-3">From KSh 800</p>
+                        <small class="text-muted">2 hours journey</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Location autocomplete
+    function setupAutocomplete(inputId, hiddenId) {
+        $(inputId).autocomplete({
+            source: function(request, response) {
+                $.ajax({
+                    url: "{% url 'location_autocomplete' %}",
+                    data: {
+                        term: request.term
+                    },
+                    success: function(data) {
+                        response(data);
+                    }
+                });
+            },
+            minLength: 2,
+            select: function(event, ui) {
+                $(hiddenId).val(ui.item.id);
+            },
+            change: function(event, ui) {
+                if (!ui.item) {
+                    $(this).val('');
+                    $(hiddenId).val('');
+                }
+            }
+        });
+    }
+    
+    setupAutocomplete('#origin-input', '#id_origin');
+    setupAutocomplete('#destination-input', '#id_destination');
+    
+    // Set minimum date to today
+    const today = new Date().toISOString().split('T')[0];
+    $('#id_travel_date').attr('min', today);
+    $('#id_travel_date').val(today);
+    
+    // Form validation
+    $('#search-form').on('submit', function(e) {
+        if (!$('#id_origin').val() || !$('#id_destination').val()) {
+            e.preventDefault();
+            alert('Please select both origin and destination cities from the dropdown.');
+            return false;
+        }
+        
+        if ($('#id_origin').val() === $('#id_destination').val()) {
+            e.preventDefault();
+            alert('Origin and destination cannot be the same.');
+            return false;
+        }
+    });
+});
+</script>
+{% endblock %}
