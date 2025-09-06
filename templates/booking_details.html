@@ -1,0 +1,423 @@
+{% extends 'base.html' %}
+
+{% block title %}Booking Details - {{ trip.route }}{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Progress Bar -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-3">
+                            <div class="step completed">
+                                <div class="step-icon bg-success text-white">
+                                    <i class="bi bi-check"></i>
+                                </div>
+                                <div class="step-label">Select Seats</div>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="step active">
+                                <div class="step-icon bg-primary text-white">2</div>
+                                <div class="step-label">Booking Details</div>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="step">
+                                <div class="step-icon bg-secondary text-white">3</div>
+                                <div class="step-label">Payment</div>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="step">
+                                <div class="step-icon bg-secondary text-white">4</div>
+                                <div class="step-label">Confirmation</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Trip Summary -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-bus-front"></i> Trip Summary
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Route</h6>
+                            <p class="mb-2">
+                                <strong>{{ trip.route.origin.name }}</strong> 
+                                <i class="bi bi-arrow-right mx-2"></i> 
+                                <strong>{{ trip.route.destination.name }}</strong>
+                            </p>
+                            
+                            <h6>Date & Time</h6>
+                            <p class="mb-2">
+                                <i class="bi bi-calendar3"></i> {{ trip.departure_time|date:"F j, Y" }}<br>
+                                <i class="bi bi-clock"></i> {{ trip.departure_time|time:"H:i" }} - {{ trip.arrival_time|time:"H:i" }}
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Bus Details</h6>
+                            <p class="mb-2">
+                                <strong>{{ trip.bus.company.name }}</strong><br>
+                                {{ trip.bus.bus_type }} Class | {{ trip.bus.number_plate }}
+                            </p>
+                            
+                            <h6>Selected Seats</h6>
+                            <div class="d-flex flex-wrap gap-2">
+                                {% for seat in seats %}
+                                    <span class="badge bg-primary-subtle text-primary px-3 py-2">
+                                        <i class="bi bi-car-front"></i> {{ seat.seat_number }}
+                                        {% if seat.seat_class == 'VIP' %}
+                                            <small>(VIP)</small>
+                                        {% endif %}
+                                    </span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Passenger Information Form -->
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-person-fill"></i> Passenger Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" id="booking-form">
+                        {% csrf_token %}
+                        
+                        <div class="row g-3">
+                            <!-- Full Name -->
+                            <div class="col-md-6">
+                                <label for="id_passenger_name" class="form-label">
+                                    Full Name <span class="text-danger">*</span>
+                                </label>
+                                {{ form.passenger_name }}
+                                <div class="form-text">Enter your full name as it appears on your ID</div>
+                            </div>
+                            
+                            <!-- Email -->
+                            <div class="col-md-6">
+                                <label for="id_passenger_email" class="form-label">
+                                    Email Address <span class="text-danger">*</span>
+                                </label>
+                                {{ form.passenger_email }}
+                                <div class="form-text">Your ticket will be sent to this email</div>
+                            </div>
+                            
+                            <!-- Phone Number -->
+                            <div class="col-md-6">
+                                <label for="id_passenger_phone" class="form-label">
+                                    Phone Number <span class="text-danger">*</span>
+                                </label>
+                                {{ form.passenger_phone }}
+                                <div class="form-text">M-Pesa payment will be sent to this number</div>
+                            </div>
+                            
+                            <!-- ID Number -->
+                            <div class="col-md-6">
+                                <label for="id_passenger_id_number" class="form-label">
+                                    ID/Passport Number <span class="text-danger">*</span>
+                                </label>
+                                {{ form.passenger_id_number }}
+                                <div class="form-text">Required for security purposes</div>
+                            </div>
+                            
+                            <!-- Age -->
+                            <div class="col-md-6">
+                                <label for="id_passenger_age" class="form-label">
+                                    Age <span class="text-danger">*</span>
+                                </label>
+                                {{ form.passenger_age }}
+                            </div>
+                            
+                            <!-- Nationality -->
+                            <div class="col-md-6">
+                                <div class="form-check mt-4">
+                                    {{ form.is_kenyan }}
+                                    <label class="form-check-label" for="id_is_kenyan">
+                                        I am a Kenyan citizen
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Terms and Conditions -->
+                        <div class="mt-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="terms-checkbox" required>
+                                <label class="form-check-label" for="terms-checkbox">
+                                    I agree to the <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">Terms and Conditions</a> 
+                                    and <a href="#" data-bs-toggle="modal" data-bs-target="#privacyModal">Privacy Policy</a>
+                                    <span class="text-danger">*</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 d-flex gap-3">
+                            <a href="{% url 'trip_seats' trip.id %}" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left"></i> Back to Seats
+                            </a>
+                            <button type="submit" class="btn btn-primary flex-grow-1">
+                                <i class="bi bi-credit-card"></i> Proceed to Payment
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sidebar with Price Summary -->
+        <div class="col-lg-4">
+            <div class="card sticky-top" style="top: 20px;">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-receipt"></i> Price Summary
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <!-- Seat Breakdown -->
+                    <h6>Seat Charges:</h6>
+                    {% for seat in seats %}
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>
+                                <i class="bi bi-car-front"></i> Seat {{ seat.seat_number }}
+                                {% if seat.seat_class == 'VIP' %}
+                                    <small class="text-warning">(VIP)</small>
+                                {% endif %}
+                            </span>
+                            <span>KSh {{ seat.price|floatformat:0 }}</span>
+                        </div>
+                    {% endfor %}
+                    
+                    <hr>
+                    
+                    <!-- Subtotal -->
+                    <div class="d-flex justify-content-between">
+                        <span>Subtotal ({{ seats|length }} seat{{ seats|length|pluralize }}):</span>
+                        <span>KSh {{ total_price|floatformat:0 }}</span>
+                    </div>
+                    
+                    <!-- Service Fee -->
+                    <div class="d-flex justify-content-between">
+                        <span>Service Fee:</span>
+                        <span>KSh 50</span>
+                    </div>
+                    
+                    <!-- Total -->
+                    <hr>
+                    <div class="d-flex justify-content-between fw-bold h5">
+                        <span>Total Amount:</span>
+                        <span class="text-success">KSh {{ total_price|add:50|floatformat:0 }}</span>
+                    </div>
+                    
+                    <!-- Payment Methods -->
+                    <div class="mt-3">
+                        <small class="text-muted d-block mb-2">Accepted Payment Methods:</small>
+                        <div class="d-flex align-items-center gap-2">
+                            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='25' viewBox='0 0 40 25'%3E%3Crect width='40' height='25' fill='%2300a86b'/%3E%3Ctext x='20' y='15' text-anchor='middle' fill='white' font-size='10' font-weight='bold'%3EM-Pesa%3C/text%3E%3C/svg%3E" alt="M-Pesa" class="img-fluid">
+                            <small class="text-muted">Secure payment with M-Pesa</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Contact Support -->
+            <div class="card mt-3">
+                <div class="card-body text-center">
+                    <h6 class="card-title">
+                        <i class="bi bi-headset text-primary"></i> Need Help?
+                    </h6>
+                    <p class="card-text small text-muted">
+                        Our support team is available 24/7 to assist you.
+                    </p>
+                    <div class="d-flex gap-2">
+                        <a href="tel:+254700123456" class="btn btn-outline-primary btn-sm flex-grow-1">
+                            <i class="bi bi-telephone"></i> Call
+                        </a>
+                        <a href="#" class="btn btn-outline-primary btn-sm flex-grow-1">
+                            <i class="bi bi-chat-dots"></i> Chat
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Terms and Conditions Modal -->
+<div class="modal fade" id="termsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Terms and Conditions</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <h6>Booking Terms:</h6>
+                <ul>
+                    <li>All bookings are subject to availability</li>
+                    <li>Passengers must arrive 30 minutes before departure</li>
+                    <li>Valid ID is required for boarding</li>
+                    <li>Tickets are non-refundable but can be rescheduled (fees apply)</li>
+                    <li>Children under 3 travel free (without seat)</li>
+                    <li>Luggage allowance: 20kg per passenger</li>
+                </ul>
+                
+                <h6>Payment Terms:</h6>
+                <ul>
+                    <li>Payment must be completed within 5 minutes of reservation</li>
+                    <li>Failed payments will release seat reservations</li>
+                    <li>M-Pesa transaction fees may apply</li>
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Understood</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Privacy Policy Modal -->
+<div class="modal fade" id="privacyModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Privacy Policy</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <h6>Data Collection:</h6>
+                <p>We collect personal information including name, email, phone number, and ID for booking purposes only.</p>
+                
+                <h6>Data Usage:</h6>
+                <ul>
+                    <li>Process your booking and payment</li>
+                    <li>Send booking confirmations and updates</li>
+                    <li>Provide customer support</li>
+                    <li>Comply with legal requirements</li>
+                </ul>
+                
+                <h6>Data Security:</h6>
+                <p>Your data is encrypted and stored securely. We do not share your information with third parties except as required by law.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Understood</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.step {
+    position: relative;
+}
+
+.step-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.step.completed .step-icon {
+    background-color: #28a745 !important;
+}
+
+.step.active .step-icon {
+    background-color: #007bff !important;
+}
+
+.step-label {
+    font-size: 14px;
+    font-weight: 500;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Form validation
+    $('#booking-form').on('submit', function(e) {
+        let isValid = true;
+        
+        // Check required fields
+        const requiredFields = ['passenger_name', 'passenger_email', 'passenger_phone', 'passenger_id_number', 'passenger_age'];
+        
+        requiredFields.forEach(field => {
+            const input = $(`#id_${field}`);
+            if (!input.val().trim()) {
+                input.addClass('is-invalid');
+                isValid = false;
+            } else {
+                input.removeClass('is-invalid');
+            }
+        });
+        
+        // Check terms acceptance
+        if (!$('#terms-checkbox').is(':checked')) {
+            alert('Please accept the Terms and Conditions to continue.');
+            isValid = false;
+        }
+        
+        // Email validation
+        const email = $('#id_passenger_email').val();
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (email && !emailRegex.test(email)) {
+            $('#id_passenger_email').addClass('is-invalid');
+            isValid = false;
+        }
+        
+        // Phone validation (Kenyan format)
+        const phone = $('#id_passenger_phone').val();
+        const phoneRegex = /^(\+254|0)[7-9]\d{8}$/;
+        if (phone && !phoneRegex.test(phone)) {
+            $('#id_passenger_phone').addClass('is-invalid');
+            alert('Please enter a valid Kenyan phone number (e.g., 0712345678)');
+            isValid = false;
+        }
+        
+        if (!isValid) {
+            e.preventDefault();
+        }
+    });
+    
+    // Real-time validation
+    $('#id_passenger_email').on('blur', function() {
+        const email = $(this).val();
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (email && !emailRegex.test(email)) {
+            $(this).addClass('is-invalid');
+        } else {
+            $(this).removeClass('is-invalid');
+        }
+    });
+    
+    $('#id_passenger_phone').on('blur', function() {
+        const phone = $(this).val();
+        const phoneRegex = /^(\+254|0)[7-9]\d{8}$/;
+        if (phone && !phoneRegex.test(phone)) {
+            $(this).addClass('is-invalid');
+        } else {
+            $(this).removeClass('is-invalid');
+        }
+    });
+});
+</script>
+{% endblock %}
