@@ -1,6 +1,6 @@
 # Drealimer - Bus Booking System
 
-A comprehensive Django-based bus booking system designed for the Kenyan market, featuring seat selection, M-Pesa payment integration, and real-time availability management.
+A comprehensive Django-based bus booking system designed for the Kenyan market, featuring seat selection, M-Pesa payment integration, and real-time availability management system.
 
 ## Features
 
