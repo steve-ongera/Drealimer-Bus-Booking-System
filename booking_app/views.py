@@ -368,3 +368,312 @@ def save_seat_layout(request):
         return JsonResponse({'success': True, 'layout_id': layout.id})
     
     return JsonResponse({'success': False})
+
+
+# views.py
+from django.http import HttpResponse
+from django.template.loader import get_template
+from django.shortcuts import get_object_or_404
+from weasyprint import HTML, CSS
+from weasyprint.text.fonts import FontConfiguration
+import tempfile
+import os
+from .models import Booking
+
+def download_booking_pdf(request, booking_id):
+    """
+    Generate and download PDF receipt for booking
+    """
+    # Get the booking object
+    booking = get_object_or_404(Booking, booking_id=booking_id)
+    
+    # Load the template
+    template = get_template('booking_app/booking_pdf.html')
+    
+    # Context for the template
+    context = {
+        'booking': booking,
+        'company_info': {
+            'name': 'DreamLine Bus Service',
+            'address': 'P.O. Box 12345, Nairobi, Kenya',
+            'phone': '+254 700 123456',
+            'email': 'info@dreamlinebus.com'
+        }
+    }
+    
+    # Render HTML
+    html_string = template.render(context)
+    
+    # Generate PDF
+    font_config = FontConfiguration()
+    html = HTML(string=html_string, base_url=request.build_absolute_uri())
+    
+    # CSS for PDF styling
+    css_string = """
+        @page {
+            size: A4;
+            margin: 1cm;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+        .pdf-header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #333;
+            padding-bottom: 20px;
+        }
+        .company-logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .booking-title {
+            font-size: 20px;
+            color: #28a745;
+            margin: 20px 0;
+        }
+        .booking-id {
+            font-size: 16px;
+            font-weight: bold;
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 15px 0;
+            text-align: center;
+        }
+        .section {
+            margin-bottom: 25px;
+        }
+        .section-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+        }
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+        }
+        .info-table td {
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+        }
+        .info-table .label {
+            font-weight: bold;
+            width: 40%;
+            color: #666;
+        }
+        .info-table .value {
+            color: #333;
+        }
+        .seats-section {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .seat {
+            display: inline-block;
+            background: #28a745;
+            color: white;
+            padding: 8px 12px;
+            margin: 3px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .total-section {
+            background: #fff3cd;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin: 20px 0;
+            border: 1px solid #ffeaa7;
+        }
+        .total-amount {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 10px;
+            color: #666;
+            border-top: 1px solid #ddd;
+            padding-top: 20px;
+        }
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-weight: bold;
+            font-size: 11px;
+        }
+        .status-confirmed {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+    """
+    
+    main_css = CSS(string=css_string, font_config=font_config)
+    
+    # Generate PDF
+    pdf = html.render(stylesheets=[main_css], font_config=font_config)
+    
+    # Create HTTP response
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="booking_{booking_id}.pdf"'
+    response.write(pdf.write_pdf())
+    
+    return response
+
+
+# Alternative view using reportlab (if you prefer reportlab over weasyprint)
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import letter, A4
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.units import inch
+from django.http import HttpResponse
+import io
+
+def download_booking_pdf_reportlab(request, booking_id):
+    """
+    Alternative PDF generation using ReportLab
+    """
+    booking = get_object_or_404(Booking, booking_id=booking_id)
+    
+    # Create a file-like buffer to receive PDF data
+    buffer = io.BytesIO()
+    
+    # Create the PDF object, using the buffer as its "file"
+    p = SimpleDocTemplate(buffer, pagesize=A4)
+    
+    # Container for the 'Flowable' objects
+    elements = []
+    
+    # Define styles
+    styles = getSampleStyleSheet()
+    title_style = ParagraphStyle(
+        'CustomTitle',
+        parent=styles['Heading1'],
+        fontSize=24,
+        spaceAfter=30,
+        textColor=colors.HexColor('#28a745'),
+        alignment=1  # Center alignment
+    )
+    
+    heading_style = ParagraphStyle(
+        'CustomHeading',
+        parent=styles['Heading2'],
+        fontSize=16,
+        spaceAfter=12,
+        textColor=colors.HexColor('#333333')
+    )
+    
+    # Title
+    elements.append(Paragraph("DreamLine Bus Service", title_style))
+    elements.append(Paragraph("BOOKING CONFIRMATION", heading_style))
+    elements.append(Spacer(1, 20))
+    
+    # Booking ID
+    booking_id_style = ParagraphStyle(
+        'BookingID',
+        parent=styles['Normal'],
+        fontSize=14,
+        alignment=1,
+        backColor=colors.HexColor('#f8f9fa'),
+        borderPadding=10
+    )
+    elements.append(Paragraph(f"Booking ID: {booking.booking_id}", booking_id_style))
+    elements.append(Spacer(1, 20))
+    
+    # Trip Information Table
+    trip_data = [
+        ['Trip Information', ''],
+        ['Route', str(booking.trip.route)],
+        ['Bus Company', booking.trip.bus.company.name],
+        ['Bus Number', booking.trip.bus.number_plate],
+        ['Departure', booking.trip.departure_time.strftime('%B %d, %Y at %H:%M')],
+        ['Arrival', booking.trip.arrival_time.strftime('%B %d, %Y at %H:%M')],
+        ['Pickup Location', booking.pickup_location.name],
+        ['Drop-off Location', booking.dropoff_location.name],
+    ]
+    
+    trip_table = Table(trip_data, colWidths=[2.5*inch, 3*inch])
+    trip_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#28a745')),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 14),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.HexColor('#f8f9fa')),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black)
+    ]))
+    
+    elements.append(trip_table)
+    elements.append(Spacer(1, 20))
+    
+    # Passenger Information Table
+    passenger_data = [
+        ['Passenger Information', ''],
+        ['Name', booking.passenger_name],
+        ['Email', booking.passenger_email],
+        ['Phone', booking.passenger_phone],
+        ['ID Number', booking.passenger_id_number],
+        ['Age', f"{booking.passenger_age} years"],
+        ['Nationality', 'Kenyan' if booking.is_kenyan else 'International'],
+    ]
+    
+    passenger_table = Table(passenger_data, colWidths=[2.5*inch, 3*inch])
+    passenger_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#007bff')),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 14),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.HexColor('#f8f9fa')),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black)
+    ]))
+    
+    elements.append(passenger_table)
+    elements.append(Spacer(1, 20))
+    
+    # Seats
+    seats_text = "Seats: " + ", ".join([seat.seat.seat_number for seat in booking.booked_seats.all()])
+    elements.append(Paragraph(seats_text, styles['Normal']))
+    elements.append(Spacer(1, 20))
+    
+    # Total Amount
+    total_style = ParagraphStyle(
+        'Total',
+        parent=styles['Normal'],
+        fontSize=18,
+        alignment=1,
+        backColor=colors.HexColor('#ffc107'),
+        borderPadding=15
+    )
+    elements.append(Paragraph(f"Total Amount: KSh {booking.total_amount:,.0f}", total_style))
+    
+    # Build PDF
+    p.build(elements)
+    
+    # Get the value of the BytesIO buffer and write it to the response
+    pdf = buffer.getvalue()
+    buffer.close()
+    
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="booking_{booking_id}.pdf"'
+    response.write(pdf)
+    
+    return response

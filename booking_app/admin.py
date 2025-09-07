@@ -139,7 +139,7 @@ class TripAdmin(admin.ModelAdmin):
     date_hierarchy = 'departure_time'
     
     def trip_info(self, obj):
-        return f"{obj.route} - {obj.departure_time.strftime('%Y-%m-%d %H:%M')}"
+        return f"{str(obj.route)} - {obj.departure_time.strftime('%Y-%m-%d %H:%M')}"
     trip_info.short_description = "Trip"
     
     def bookings_count(self, obj):
@@ -155,12 +155,12 @@ class TripAdmin(admin.ModelAdmin):
             rate = (booked_seats / total_seats) * 100
             color = 'green' if rate > 70 else 'orange' if rate > 40 else 'red'
             return format_html(
-                '<span style="color: {};">{:.1f}% ({}/{})</span>',
-                color, rate, booked_seats, total_seats
+                '<span style="color: {};">{}% ({}/{})</span>',
+                color, f"{rate:.1f}", booked_seats, total_seats
             )
         return "0%"
-    occupancy_rate.short_description = "Occupancy Rate"
 
+    occupancy_rate.short_description = "Occupancy Rate"
 
 @admin.register(Seat)
 class SeatAdmin(admin.ModelAdmin):

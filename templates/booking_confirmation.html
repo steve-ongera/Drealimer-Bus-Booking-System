@@ -1,527 +1,466 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Booking Confirmation - {{ booking.booking_id }}</title>
-    <style>
-        * {
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Booking Confirmation - {{ booking.booking_id }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .booking-container {
+        max-width: 900px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+
+    .confirmation-header {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+        text-align: center;
+        padding: 2rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+    }
+
+    .confirmation-header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .confirmation-header .booking-id {
+        font-size: 1.5rem;
+        font-weight: bold;
+        background: rgba(255, 255, 255, 0.2);
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        display: inline-block;
+        margin-top: 1rem;
+        letter-spacing: 2px;
+    }
+
+    .booking-details {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .details-section {
+        margin-bottom: 2rem;
+    }
+
+    .section-title {
+        font-size: 1.3rem;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #f8f9fa;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .info-card {
+        padding: 1.5rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+    }
+
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.75rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .info-row:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+    }
+
+    .info-label {
+        color: #6c757d;
+        font-weight: 500;
+    }
+
+    .info-value {
+        color: #212529;
+        font-weight: 600;
+        text-align: right;
+    }
+
+    .seats-section {
+        text-align: center;
+        margin: 2rem 0;
+    }
+
+    .seats-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        justify-content: center;
+        margin-top: 1rem;
+    }
+
+    .seat-number {
+        background: #28a745;
+        color: white;
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        font-weight: bold;
+        min-width: 50px;
+    }
+
+    .amount-section {
+        background: #ffc107;
+        color: #212529;
+        text-align: center;
+        padding: 2rem;
+        border-radius: 12px;
+        margin: 2rem 0;
+        box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+    }
+
+    .amount-section h3 {
+        font-size: 1.3rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .total-amount {
+        font-size: 2.5rem;
+        font-weight: bold;
+    }
+
+    .status-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: bold;
+        font-size: 0.9rem;
+    }
+
+    .status-confirmed {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .status-pending {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .important-notes {
+        background: #e3f2fd;
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin: 2rem 0;
+    }
+
+    .important-notes h4 {
+        color: #1976d2;
+        margin-bottom: 1rem;
+    }
+
+    .important-notes ul {
+        margin-left: 1.5rem;
+        color: #333;
+    }
+
+    .important-notes li {
+        margin-bottom: 0.5rem;
+    }
+
+    .action-buttons {
+        text-align: center;
+        padding: 2rem 0;
+        border-top: 1px solid #e9ecef;
+        margin-top: 2rem;
+    }
+
+    .btn-custom {
+        display: inline-block;
+        padding: 0.75rem 1.5rem;
+        margin: 0.5rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-primary-custom {
+        background: #007bff;
+        color: white;
+    }
+
+    .btn-primary-custom:hover {
+        background: #0056b3;
+        transform: translateY(-2px);
+        color: white;
+        text-decoration: none;
+    }
+
+    .btn-success-custom {
+        background: #28a745;
+        color: white;
+    }
+
+    .btn-success-custom:hover {
+        background: #218838;
+        transform: translateY(-2px);
+        color: white;
+        text-decoration: none;
+    }
+
+    .btn-secondary-custom {
+        background: #6c757d;
+        color: white;
+    }
+
+    .btn-secondary-custom:hover {
+        background: #545b62;
+        transform: translateY(-2px);
+        color: white;
+        text-decoration: none;
+    }
+
+    @media (max-width: 768px) {
+        .booking-container {
+            padding: 0 0.5rem;
+        }
+        
+        .confirmation-header h1 {
+            font-size: 2rem;
+        }
+        
+        .confirmation-header .booking-id {
+            font-size: 1.2rem;
+        }
+        
+        .info-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+        
+        .booking-details {
+            padding: 1rem;
+        }
+        
+        .total-amount {
+            font-size: 2rem;
+        }
+    }
+
+    @media print {
+        .action-buttons {
+            display: none;
+        }
+        
+        .booking-container {
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
         }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
+        
+        .booking-details {
+            box-shadow: none;
         }
+    }
+</style>
+{% endblock %}
 
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-        }
+{% block content %}
+<div class="booking-container">
+    <!-- Confirmation Header -->
+    <div class="confirmation-header">
+        <h1>✅ Booking Confirmed!</h1>
+        <p>Your ticket has been successfully booked</p>
+        <div class="booking-id">{{ booking.booking_id }}</div>
+    </div>
 
-        .header {
-            background: linear-gradient(135deg, #28a745, #20c997);
-            color: white;
-            padding: 40px 30px;
-            text-align: center;
-            position: relative;
-        }
-
-        .header::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: repeating-linear-gradient(
-                45deg,
-                transparent,
-                transparent 10px,
-                rgba(255,255,255,0.05) 10px,
-                rgba(255,255,255,0.05) 20px
-            );
-            animation: slide 20s linear infinite;
-        }
-
-        @keyframes slide {
-            0% { transform: translate(-50%, -50%); }
-            100% { transform: translate(-48%, -48%); }
-        }
-
-        .success-icon {
-            font-size: 64px;
-            margin-bottom: 16px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .header h1 {
-            font-size: 2rem;
-            margin-bottom: 8px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .header p {
-            font-size: 1.1rem;
-            opacity: 0.9;
-            position: relative;
-            z-index: 1;
-        }
-
-        .content {
-            padding: 40px 30px;
-        }
-
-        .booking-card {
-            background: #f8f9ff;
-            border-radius: 12px;
-            padding: 24px;
-            margin-bottom: 24px;
-            border-left: 4px solid #667eea;
-        }
-
-        .booking-id {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 16px;
-            text-align: center;
-            padding: 12px;
-            background: #e3f2fd;
-            border-radius: 8px;
-            letter-spacing: 2px;
-        }
-
-        .details-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 24px;
-            margin-bottom: 32px;
-        }
-
-        .detail-section {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            border: 1px solid #e9ecef;
-        }
-
-        .detail-section h3 {
-            color: #495057;
-            margin-bottom: 16px;
-            font-size: 1.1rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .detail-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 0;
-            border-bottom: 1px solid #f1f3f4;
-        }
-
-        .detail-item:last-child {
-            border-bottom: none;
-        }
-
-        .detail-label {
-            color: #6c757d;
-            font-weight: 500;
-        }
-
-        .detail-value {
-            color: #212529;
-            font-weight: 600;
-            text-align: right;
-        }
-
-        .seats-container {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            margin-bottom: 24px;
-        }
-
-        .seat-grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            justify-content: center;
-        }
-
-        .seat {
-            width: 40px;
-            height: 40px;
-            background: #28a745;
-            color: white;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 0.9rem;
-            box-shadow: 0 2px 4px rgba(40, 167, 69, 0.3);
-        }
-
-        .total-amount {
-            background: linear-gradient(135deg, #ffc107, #ff8f00);
-            color: white;
-            padding: 20px;
-            border-radius: 12px;
-            text-align: center;
-            margin-bottom: 32px;
-            box-shadow: 0 8px 16px rgba(255, 193, 7, 0.3);
-        }
-
-        .total-amount h3 {
-            font-size: 1.2rem;
-            margin-bottom: 8px;
-        }
-
-        .total-amount .amount {
-            font-size: 2rem;
-            font-weight: bold;
-        }
-
-        .important-info {
-            background: #fff3cd;
-            border: 1px solid #ffeaa7;
-            border-radius: 8px;
-            padding: 16px;
-            margin-bottom: 24px;
-        }
-
-        .important-info h4 {
-            color: #856404;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .important-info ul {
-            color: #856404;
-            margin-left: 20px;
-        }
-
-        .actions {
-            text-align: center;
-            padding-top: 24px;
-            border-top: 1px solid #e9ecef;
-        }
-
-        .btn {
-            display: inline-block;
-            padding: 12px 24px;
-            margin: 8px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            border: none;
-            cursor: pointer;
-        }
-
-        .btn-primary {
-            background: #007bff;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: #0056b3;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
-        }
-
-        .btn-secondary {
-            background: #6c757d;
-            color: white;
-        }
-
-        .btn-secondary:hover {
-            background: #545b62;
-            transform: translateY(-2px);
-        }
-
-        .status-badge {
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: bold;
-        }
-
-        .status-confirmed {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .status-pending {
-            background: #fff3cd;
-            color: #856404;
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                margin: 10px;
-                border-radius: 12px;
-            }
-
-            .header {
-                padding: 30px 20px;
-            }
-
-            .content {
-                padding: 20px;
-            }
-
-            .details-grid {
-                grid-template-columns: 1fr;
-                gap: 16px;
-            }
-
-            .booking-id {
-                font-size: 1.2rem;
-            }
-        }
-
-        .print-btn {
-            background: #28a745;
-            color: white;
-        }
-
-        .print-btn:hover {
-            background: #218838;
-        }
-
-        @media print {
-            body {
-                background: white;
-                padding: 0;
-            }
-            
-            .container {
-                box-shadow: none;
-                border-radius: 0;
-            }
-            
-            .actions {
-                display: none;
-            }
-            
-            .header {
-                background: #28a745 !important;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <div class="success-icon">✅</div>
-            <h1>Booking Confirmed!</h1>
-            <p>Your ticket has been successfully booked</p>
-        </div>
-
-        <div class="content">
-            <div class="booking-card">
-                <div class="booking-id">{{ booking.booking_id }}</div>
+    <!-- Booking Details -->
+    <div class="booking-details">
+        <!-- Trip Information -->
+        <div class="details-section">
+            <h3 class="section-title">
+                🚌 Trip Information
+            </h3>
+            <div class="info-grid">
+                <div class="info-card">
+                    <div class="info-row">
+                        <span class="info-label">Route:</span>
+                        <span class="info-value">{{ booking.trip.route }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Bus Company:</span>
+                        <span class="info-value">{{ booking.trip.bus.company.name }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Bus Number:</span>
+                        <span class="info-value">{{ booking.trip.bus.number_plate }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Bus Type:</span>
+                        <span class="info-value">{{ booking.trip.bus.bus_type }}</span>
+                    </div>
+                </div>
                 
-                <div class="details-grid">
-                    <!-- Trip Information -->
-                    <div class="detail-section">
-                        <h3>🚌 Trip Details</h3>
-                        <div class="detail-item">
-                            <span class="detail-label">Route:</span>
-                            <span class="detail-value">{{ booking.trip.route }}</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">Bus Company:</span>
-                            <span class="detail-value">{{ booking.trip.bus.company.name }}</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">Bus Number:</span>
-                            <span class="detail-value">{{ booking.trip.bus.number_plate }}</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">Bus Type:</span>
-                            <span class="detail-value">{{ booking.trip.bus.bus_type }}</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">Departure:</span>
-                            <span class="detail-value">{{ booking.trip.departure_time|date:"M d, Y" }} at {{ booking.trip.departure_time|time:"H:i" }}</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">Expected Arrival:</span>
-                            <span class="detail-value">{{ booking.trip.arrival_time|date:"M d, Y" }} at {{ booking.trip.arrival_time|time:"H:i" }}</span>
-                        </div>
+                <div class="info-card">
+                    <div class="info-row">
+                        <span class="info-label">Departure:</span>
+                        <span class="info-value">{{ booking.trip.departure_time|date:"M d, Y" }}<br>{{ booking.trip.departure_time|time:"H:i" }}</span>
                     </div>
-
-                    <!-- Passenger Information -->
-                    <div class="detail-section">
-                        <h3>👤 Passenger Details</h3>
-                        <div class="detail-item">
-                            <span class="detail-label">Name:</span>
-                            <span class="detail-value">{{ booking.passenger_name }}</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">Email:</span>
-                            <span class="detail-value">{{ booking.passenger_email }}</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">Phone:</span>
-                            <span class="detail-value">{{ booking.passenger_phone }}</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">ID Number:</span>
-                            <span class="detail-value">{{ booking.passenger_id_number }}</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">Age:</span>
-                            <span class="detail-value">{{ booking.passenger_age }} years</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">Nationality:</span>
-                            <span class="detail-value">{% if booking.is_kenyan %}Kenyan{% else %}International{% endif %}</span>
-                        </div>
+                    <div class="info-row">
+                        <span class="info-label">Arrival:</span>
+                        <span class="info-value">{{ booking.trip.arrival_time|date:"M d, Y" }}<br>{{ booking.trip.arrival_time|time:"H:i" }}</span>
                     </div>
-
-                    <!-- Pickup & Drop-off -->
-                    <div class="detail-section">
-                        <h3>📍 Journey Points</h3>
-                        <div class="detail-item">
-                            <span class="detail-label">Pickup Location:</span>
-                            <span class="detail-value">{{ booking.pickup_location.name }}</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">Drop-off Location:</span>
-                            <span class="detail-value">{{ booking.dropoff_location.name }}</span>
-                        </div>
+                    <div class="info-row">
+                        <span class="info-label">Pickup:</span>
+                        <span class="info-value">{{ booking.pickup_location.name }}</span>
                     </div>
-
-                    <!-- Booking Status -->
-                    <div class="detail-section">
-                        <h3>📋 Booking Status</h3>
-                        <div class="detail-item">
-                            <span class="detail-label">Status:</span>
-                            <span class="detail-value">
-                                <span class="status-badge {% if booking.status == 'CONFIRMED' %}status-confirmed{% else %}status-pending{% endif %}">
-                                    {{ booking.get_status_display }}
-                                </span>
-                            </span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">Booking Date:</span>
-                            <span class="detail-value">{{ booking.created_at|date:"M d, Y H:i" }}</span>
-                        </div>
-                        {% if booking.paid_at %}
-                        <div class="detail-item">
-                            <span class="detail-label">Payment Date:</span>
-                            <span class="detail-value">{{ booking.paid_at|date:"M d, Y H:i" }}</span>
-                        </div>
-                        {% endif %}
-                        {% if booking.mpesa_transaction_id %}
-                        <div class="detail-item">
-                            <span class="detail-label">M-Pesa Transaction:</span>
-                            <span class="detail-value">{{ booking.mpesa_transaction_id }}</span>
-                        </div>
-                        {% endif %}
+                    <div class="info-row">
+                        <span class="info-label">Drop-off:</span>
+                        <span class="info-value">{{ booking.dropoff_location.name }}</span>
                     </div>
-                </div>
-
-                <!-- Seat Information -->
-                <div class="seats-container">
-                    <h3 style="margin-bottom: 16px; color: #495057;">🪑 Your Seats</h3>
-                    <div class="seat-grid">
-                        {% for booked_seat in booking.booked_seats.all %}
-                            <div class="seat" title="Seat {{ booked_seat.seat.seat_number }} - {{ booked_seat.seat.seat_class }} Class">
-                                {{ booked_seat.seat.seat_number }}
-                            </div>
-                        {% empty %}
-                            <p>No seats assigned</p>
-                        {% endfor %}
-                    </div>
-                </div>
-
-                <!-- Total Amount -->
-                <div class="total-amount">
-                    <h3>Total Amount Paid</h3>
-                    <div class="amount">KSh {{ booking.total_amount|floatformat:0 }}</div>
-                </div>
-
-                <!-- Important Information -->
-                <div class="important-info">
-                    <h4>⚠️ Important Information</h4>
-                    <ul>
-                        <li>Please arrive at the pickup location <strong>30 minutes before departure time</strong></li>
-                        <li>Carry a valid ID document for verification</li>
-                        <li>This booking confirmation serves as your ticket</li>
-                        <li>For any inquiries, contact {{ booking.trip.bus.company.name }} at {{ booking.trip.bus.company.phone }}</li>
-                        {% if booking.status == 'PENDING' %}
-                        <li style="color: #dc3545;"><strong>Payment is still pending. Please complete payment to confirm your booking.</strong></li>
-                        {% endif %}
-                    </ul>
                 </div>
             </div>
+        </div>
 
-            <div class="actions">
-                <button class="btn btn-primary print-btn" onclick="window.print()">🖨️ Print Ticket</button>
-                <a href="mailto:{{ booking.passenger_email }}?subject=Booking Confirmation - {{ booking.booking_id }}" class="btn btn-secondary">📧 Email Ticket</a>
-                <a href="/" class="btn btn-secondary">🏠 Back to Home</a>
+        <!-- Passenger Information -->
+        <div class="details-section">
+            <h3 class="section-title">
+                👤 Passenger Information
+            </h3>
+            <div class="info-grid">
+                <div class="info-card">
+                    <div class="info-row">
+                        <span class="info-label">Name:</span>
+                        <span class="info-value">{{ booking.passenger_name }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Email:</span>
+                        <span class="info-value">{{ booking.passenger_email }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Phone:</span>
+                        <span class="info-value">{{ booking.passenger_phone }}</span>
+                    </div>
+                </div>
+                
+                <div class="info-card">
+                    <div class="info-row">
+                        <span class="info-label">ID Number:</span>
+                        <span class="info-value">{{ booking.passenger_id_number }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Age:</span>
+                        <span class="info-value">{{ booking.passenger_age }} years</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Nationality:</span>
+                        <span class="info-value">{% if booking.is_kenyan %}Kenyan{% else %}International{% endif %}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seat Information -->
+        <div class="details-section">
+            <h3 class="section-title">
+                🪑 Your Seats
+            </h3>
+            <div class="seats-section">
+                <div class="seats-grid">
+                    {% for booked_seat in booking.booked_seats.all %}
+                        <div class="seat-number">{{ booked_seat.seat.seat_number }}</div>
+                    {% empty %}
+                        <p>No seats assigned</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Booking Status -->
+        <div class="details-section">
+            <h3 class="section-title">
+                📋 Booking Status
+            </h3>
+            <div class="info-grid">
+                <div class="info-card">
+                    <div class="info-row">
+                        <span class="info-label">Status:</span>
+                        <span class="info-value">
+                            <span class="status-badge {% if booking.status == 'CONFIRMED' %}status-confirmed{% else %}status-pending{% endif %}">
+                                {{ booking.get_status_display }}
+                            </span>
+                        </span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Booking Date:</span>
+                        <span class="info-value">{{ booking.created_at|date:"M d, Y H:i" }}</span>
+                    </div>
+                    {% if booking.paid_at %}
+                    <div class="info-row">
+                        <span class="info-label">Payment Date:</span>
+                        <span class="info-value">{{ booking.paid_at|date:"M d, Y H:i" }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                {% if booking.mpesa_transaction_id %}
+                <div class="info-card">
+                    <div class="info-row">
+                        <span class="info-label">M-Pesa Transaction:</span>
+                        <span class="info-value">{{ booking.mpesa_transaction_id }}</span>
+                    </div>
+                </div>
+                {% endif %}
             </div>
         </div>
     </div>
 
-    <script>
-        // Auto-print functionality (optional)
-        // window.onload = function() {
-        //     if (confirm('Would you like to print your ticket?')) {
-        //         window.print();
-        //     }
-        // };
+    <!-- Total Amount -->
+    <div class="amount-section">
+        <h3>Total Amount Paid</h3>
+        <div class="total-amount">KSh {{ booking.total_amount|floatformat:0 }}</div>
+    </div>
 
-        // Add some interactivity
-        document.addEventListener('DOMContentLoaded', function() {
-            // Add hover effects to seats
-            const seats = document.querySelectorAll('.seat');
-            seats.forEach(seat => {
-                seat.addEventListener('mouseenter', function() {
-                    this.style.transform = 'scale(1.1)';
-                    this.style.transition = 'transform 0.2s ease';
-                });
-                
-                seat.addEventListener('mouseleave', function() {
-                    this.style.transform = 'scale(1)';
-                });
-            });
+    <!-- Important Information -->
+    <div class="important-notes">
+        <h4>📌 Important Information</h4>
+        <ul>
+            <li>Please arrive at the pickup location <strong>30 minutes before departure time</strong></li>
+            <li>Carry a valid ID document for verification</li>
+            <li>This booking confirmation serves as your ticket</li>
+            <li>For inquiries, contact {{ booking.trip.bus.company.name }} at {{ booking.trip.bus.company.phone }}</li>
+            {% if booking.status == 'PENDING' %}
+            <li style="color: #dc3545;"><strong>Payment is still pending. Please complete payment to confirm your booking.</strong></li>
+            {% endif %}
+        </ul>
+    </div>
 
-            // Show booking details animation
-            const detailSections = document.querySelectorAll('.detail-section');
-            detailSections.forEach((section, index) => {
-                section.style.opacity = '0';
-                section.style.transform = 'translateY(20px)';
-                
-                setTimeout(() => {
-                    section.style.transition = 'all 0.5s ease';
-                    section.style.opacity = '1';
-                    section.style.transform = 'translateY(0)';
-                }, index * 100);
-            });
-        });
-    </script>
-</body>
-</html>
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+        <button class="btn-custom btn-success-custom" onclick="window.print()">
+            🖨️ Print Ticket
+        </button>
+        <a href="{% url 'download_booking_pdf' booking.booking_id %}" class="btn-custom btn-primary-custom">
+            📄 Download PDF
+        </a>
+        <a href="mailto:{{ booking.passenger_email }}?subject=Booking Confirmation - {{ booking.booking_id }}" class="btn-custom btn-secondary-custom">
+            📧 Email Ticket
+        </a>
+        <a href="{% url 'home' %}" class="btn-custom btn-secondary-custom">
+            🏠 Back to Home
+        </a>
+    </div>
+</div>
+{% endblock %}

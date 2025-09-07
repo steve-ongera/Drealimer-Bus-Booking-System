@@ -11,6 +11,8 @@ urlpatterns = [
     path('trip/<int:trip_id>/booking/', views.booking_details, name='booking_details'),
     path('payment/<str:booking_id>/', views.payment, name='payment'),
     path('confirmation/<str:booking_id>/', views.booking_confirmation, name='booking_confirmation'),
+    # PDF download URLs
+    path('booking/<str:booking_id>/pdf/', views.download_booking_pdf, name='download_booking_pdf'),
     
     # AJAX endpoints
     path('api/location-autocomplete/', views.location_autocomplete, name='location_autocomplete'),
