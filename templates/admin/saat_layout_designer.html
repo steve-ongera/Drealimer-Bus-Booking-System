@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seat Layout Designer - Dream Line Admin</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css" rel="stylesheet">
+    <!-- Sortable.js for drag and drop -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+    
+    <style>
+        .layout-canvas {
+            min-height: 600px;
+            background: linear-gradient(180deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 3px dashed #6c757d;
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .bus-frame {
+            width: 100%;
+            max-width: 400px;
+            margin: 20px auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+        
+        .driver-area {
+            background-color: #6c757d;
+            height: 40px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .seat-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            padding: 20px;
+        }
+        
+        .draggable-seat {
+            width: 50px;
+            height: 50px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: grab;
+            transition: all 0.3s ease;
+            user-select: none;
+        }
+        
+        .draggable-seat:hover {
+            transform: scale(1.05);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .draggable-seat.economy {
+            background-color: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+        }
+        
+        .draggable-seat.business {
+            background-color: #cce5ff;
+            border-color: #007bff;
+            color: #004085;
+        }
+        
+        .draggable-seat.vip {
+            background-color: #fff3cd;
+            border-color: #ffc107;
+            color: #856404;
+        }
+        
+        .seat-palette {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .palette-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+        
+        .drop-zone {
+            min-height: 60px;
+            border: 2px dashed #dee2e6;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(255,255,255,0.5);
+            transition: all 0.3s ease;
+        }
+        
+        .drop-zone.drag-over {
+            border-color: #007bff;
+            background-color: rgba(0,123,255,0.1);
+        }
+        
+        .controls-panel {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .layout-preview {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            max-height: 500px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="bi bi-bus-front"></i> Dream Line Admin
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/admin/">Back to Admin</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid my-4">
+        <div class="row">
+            <!-- Left Sidebar - Seat Palette -->
+            <div class="col-lg-3">
+                <div class="seat-palette mb-4">
+                    <h5 class="mb-3">
+                        <i class="bi bi-palette"></i> Seat Palette
+                    </h5>
+                    
+                    <h6>Drag seats to the bus layout:</h6>
+                    <div class="palette-grid mb-3">
+                        <div class="draggable-seat economy" data-type="economy" data-class="ECONOMY">
+                            E1
+                        </div>
+                        <div class="draggable-seat business" data-type="business" data-class="BUSINESS">
+                            B1
+                        </div>
+                        <div class="draggable-seat vip" data-type="vip" data-class="VIP">
+                            V1
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Seat Properties:</label>
+                        <div id="seat-properties" style="display: none;">
+                            <div class="mb-2">
+                                <label class="form-label">Seat Number:</label>
+                                <input type="text" class="form-control form-control-sm" id="seat-number-input" placeholder="A1">
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label">Seat Type:</label>
+                                <select class="form-select form-select-sm" id="seat-type-select">
+                                    <option value="WINDOW">Window</option>
+                                    <option value="AISLE">Aisle</option>
+                                    <option value="MIDDLE">Middle</option>
+                                </select>
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label">Price Multiplier:</label>
+                                <input type="number" class="form-control form-control-sm" id="price-multiplier-input" value="1.0" step="0.1" min="0.5" max="3.0">
+                            </div>
+                            <button type="button" class="btn btn-sm btn-primary" id="apply-properties">Apply</button>
+                            <button type="button" class="btn btn-sm btn-danger" id="remove-seat">Remove</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Layout Controls -->
+                <div class="controls-panel">
+                    <h5 class="mb-3">
+                        <i class="bi bi-gear"></i> Layout Settings
+                    </h5>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Layout Name:</label>
+                        <input type="text" class="form-control" id="layout-name" placeholder="e.g., Standard 40-Seater">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Bus Class:</label>
+                        <select class="form-select" id="bus-class">
+                            <option value="ECONOMY">Economy</option>
+                            <option value="BUSINESS">Business</option>
+                            <option value="VIP">VIP</option>
+                            <option value="MIXED">Mixed</option>
+                        </select>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <label class="form-label">Rows:</label>
+                            <input type="number" class="form-control" id="layout-rows" value="10" min="5" max="15">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Columns:</label>
+                            <input type="number" class="form-control" id="layout-columns" value="4" min="3" max="6">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <button type="button" class="btn btn-success w-100" id="save-layout">
+                            <i class="bi bi-check-circle"></i> Save Layout
+                        </button>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <button type="button" class="btn btn-warning w-100" id="clear-layout">
+                            <i class="bi bi-trash"></i> Clear Layout
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Main Canvas Area -->
+            <div class="col-lg-6">
+                <div class="mb-3">
+                    <h4>
+                        <i class="bi bi-layout-wtf"></i> Seat Layout Designer
+                    </h4>
+                    <p class="text-muted">Drag and drop seats from the palette to design your bus layout</p>
+                </div>
+                
+                <div class="layout-canvas">
+                    <div class="bus-frame">
+                        <!-- Driver Area -->
+                        <div class="driver-area">
+                            <i class="bi bi-person-fill"></i> DRIVER
+                        </div>
+                        
+                        <!-- Door Indicator -->
+                        <div class="text-center mb-3">
+                            <small class="text-muted">
+                                <i class="bi bi-door-open"></i> Door
+                            </small>
+                        </div>
+                        
+                        <!-- Dynamic Seat Grid -->
+                        <div class="seat-grid" id="seat-layout-grid">
+                            <!-- Seats will be dynamically added here -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-3 text-center">
+                    <small class="text-muted">
+                        <i class="bi bi-info-circle"></i> Click on placed seats to edit their properties
+                    </small>
+                </div>
+            </div>
+            
+            <!-- Right Sidebar - Existing Layouts -->
+            <div class="col-lg-3">
+                <div class="layout-preview">
+                    <h5 class="mb-3">
+                        <i class="bi bi-list"></i> Existing Layouts
+                    </h5>
+                    
+                    <div id="existing-layouts">
+                        {% for layout in layouts %}
+                        <div class="card mb-2" data-layout-id="{{ layout.id }}">
+                            <div class="card-body p-2">
+                                <h6 class="card-title mb-1">{{ layout.name }}</h6>
+                                <small class="text-muted">
+                                    {{ layout.seat_class }} | {{ layout.total_seats }} seats
+                                </small>
+                                <div class="mt-2">
+                                    <button class="btn btn-sm btn-outline-primary load-layout" data-layout-id="{{ layout.id }}">
+                                        Load
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger delete-layout" data-layout-id="{{ layout.id }}">
+                                        Delete
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <p class="text-muted text-center">No layouts created yet</p>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <!-- Layout Statistics -->
+                <div class="mt-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <h6 class="card-title">Layout Statistics</h6>
+                            <div class="row text-center">
+                                <div class="col-4">
+                                    <div class="h5 mb-0" id="total-seats">0</div>
+                                    <small class="text-muted">Total Seats</small>
+                                </div>
+                                <div class="col-4">
+                                    <div class="h5 mb-0" id="window-seats">0</div>
+                                    <small class="text-muted">Window</small>
+                                </div>
+                                <div class="col-4">
+                                    <div class="h5 mb-0" id="aisle-seats">0</div>
+                                    <small class="text-muted">Aisle</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+    $(document).ready(function() {
+        let currentLayout = {};
+        let selectedSeat = null;
+        let seatCounter = 1;
+        
+        // Initialize the grid
+        function initializeGrid() {
+            const rows = parseInt($('#layout-rows').val());
+            const columns = parseInt($('#layout-columns').val());
+            const grid = $('#seat-layout-grid');
+            
+            grid.css('grid-template-columns', `repeat(${columns}, 1fr)`);
+            grid.empty();
+            
+            // Create drop zones
+            for (let row = 1; row <= rows; row++) {
+                for (let col = 1; col <= columns; col++) {
+                    const dropZone = $(`
+                        <div class="drop-zone" data-row="${row}" data-col="${col}">
+                            <small class="text-muted">${row}-${col}</small>
+                        </div>
+                    `);
+                    grid.append(dropZone);
+                }
+            }
+            
+            // Add aisle space
+            grid.find(`[data-col="${Math.ceil(columns/2)}"], [data-col="${Math.ceil(columns/2) + 1}"]`).css('margin-left', '10px');
+            
+            setupDropZones();
+        }
+        
+        // Setup drag and drop
+        function setupDropZones() {
+            $('.drop-zone').on('dragover', function(e) {
+                e.preventDefault();
+                $(this).addClass('drag-over');
+            });
+            
+            $('.drop-zone').on('dragleave', function() {
+                $(this).removeClass('drag-over');
+            });
+            
+            $('.drop-zone').on('drop', function(e) {
+                e.preventDefault();
+                $(this).removeClass('drag-over');
+                
+                const seatData = e.originalEvent.dataTransfer.getData('text/plain');
+                const seatInfo = JSON.parse(seatData);
+                const row = $(this).data('row');
+                const col = $(this).data('col');
+                
+                // Check if zone is empty
+                if ($(this).children('.draggable-seat').length > 0) {
+                    return;
+                }
+                
+                // Create new seat
+                const seatNumber = generateSeatNumber(row, col);
+                const newSeat = createSeat(seatNumber, seatInfo.class, seatInfo.type, row, col);
+                
+                $(this).empty().append(newSeat);
+                updateLayoutData();
+                updateStatistics();
+            });
+        }
+        
+        // Make palette seats draggable
+        $('.draggable-seat[data-type]').attr('draggable', true);
+        $('.draggable-seat[data-type]').on('dragstart', function(e) {
+            const seatData = {
+                type: $(this).data('type'),
+                class: $(this).data('class')
+            };
+            e.originalEvent.dataTransfer.setData('text/plain', JSON.stringify(seatData));
+        });
+        
+        // Create seat element
+        function createSeat(number, seatClass, seatType, row, col) {
+            const seat = $(`
+                <div class="draggable-seat ${seatClass.toLowerCase()}" 
+                     data-number="${number}" 
+                     data-class="${seatClass}" 
+                     data-type="${seatType}" 
+                     data-row="${row}" 
+                     data-col="${col}"
+                     data-multiplier="1.0">
+                    ${number}
+                </div>
+            `);
+            
+            // Make seat clickable for editing
+            seat.on('click', function() {
+                selectSeat($(this));
+            });
+            
+            return seat;
+        }
+        
+        // Generate seat number
+        function generateSeatNumber(row, col) {
+            const letters = 'ABCDEFGHIJKLMNOP';
+            return `${letters[row-1]}${col}`;
+        }
+        
+        // Select seat for editing
+        function selectSeat(seat) {
+            $('.draggable-seat').removeClass('border-primary');
+            seat.addClass('border-primary');
+            selectedSeat = seat;
+            
+            // Populate properties panel
+            $('#seat-number-input').val(seat.data('number'));
+            $('#seat-type-select').val(seat.data('type'));
+            $('#price-multiplier-input').val(seat.data('multiplier'));
+            $('#seat-properties').show();
+        }
+        
+        // Apply seat properties
+        $('#apply-properties').on('click', function() {
+            if (!selectedSeat) return;
+            
+            const newNumber = $('#seat-number-input').val();
+            const newType = $('#seat-type-select').val();
+            const newMultiplier = $('#price-multiplier-input').val();
+            
+            selectedSeat.data('number', newNumber);
+            selectedSeat.data('type', newType);
+            selectedSeat.data('multiplier', newMultiplier);
+            selectedSeat.text(newNumber);
+            
+            updateLayoutData();
+            updateStatistics();
+            
+            alert('Seat properties updated!');
+        });
+        
+        // Remove seat
+        $('#remove-seat').on('click', function() {
+            if (!selectedSeat) return;
+            
+            const row = selectedSeat.data('row');
+            const col = selectedSeat.data('col');
+            
+            selectedSeat.closest('.drop-zone').html(`<small class="text-muted">${row}-${col}</small>`);
+            selectedSeat = null;
+            $('#seat-properties').hide();
+            
+            updateLayoutData();
+            updateStatistics();
+        });
+        
+        // Update layout data
+        function updateLayoutData() {
+            const seats = [];
+            $('.draggable-seat:not([data-type])').each(function() {
+                const seat = $(this);
+                seats.push({
+                    number: seat.data('number'),
+                    class: seat.data('class'),
+                    type: seat.data('type'),
+                    row: seat.data('row'),
+                    col: seat.data('col'),
+                    multiplier: parseFloat(seat.data('multiplier'))
+                });
+            });
+            
+            currentLayout = {
+                name: $('#layout-name').val(),
+                bus_class: $('#bus-class').val(),
+                rows: parseInt($('#layout-rows').val()),
+                columns: parseInt($('#layout-columns').val()),
+                seats: seats
+            };
+        }
+        
+        // Update statistics
+        function updateStatistics() {
+            const seats = $('.draggable-seat:not([data-type])');
+            const windowSeats = seats.filter('[data-type="WINDOW"]');
+            const aisleSeats = seats.filter('[data-type="AISLE"]');
+            
+            $('#total-seats').text(seats.length);
+            $('#window-seats').text(windowSeats.length);
+            $('#aisle-seats').text(aisleSeats.length);
+        }
+        
+        // Save layout
+        $('#save-layout').on('click', function() {
+            if (!$('#layout-name').val()) {
+                alert('Please enter a layout name');
+                return;
+            }
+            
+            if (currentLayout.seats.length === 0) {
+                alert('Please add some seats to the layout');
+                return;
+            }
+            
+            const button = $(this);
+            button.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Saving...');
+            
+            $.ajax({
+                url: '/admin/save-seat-layout/',
+                method: 'POST',
+                data: JSON.stringify({
+                    name: currentLayout.name,
+                    seat_class: currentLayout.bus_class,
+                    total_seats: currentLayout.seats.length,
+                    rows: currentLayout.rows,
+                    columns: currentLayout.columns,
+                    layout_data: currentLayout
+                }),
+                contentType: 'application/json',
+                success: function(response) {
+                    if (response.success) {
+                        alert('Layout saved successfully!');
+                        location.reload(); // Refresh to show new layout in sidebar
+                    } else {
+                        alert('Failed to save layout');
+                    }
+                },
+                error: function() {
+                    alert('Error saving layout');
+                },
+                complete: function() {
+                    button.prop('disabled', false).html('<i class="bi bi-check-circle"></i> Save Layout');
+                }
+            });
+        });
+        
+        // Clear layout
+        $('#clear-layout').on('click', function() {
+            if (confirm('Are you sure you want to clear the current layout?')) {
+                initializeGrid();
+                currentLayout = {};
+                selectedSeat = null;
+                $('#seat-properties').hide();
+                updateStatistics();
+            }
+        });
+        
+        // Grid size change
+        $('#layout-rows, #layout-columns').on('change', function() {
+            initializeGrid();
+        });
+        
+        // Load existing layout
+        $('.load-layout').on('click', function() {
+            const layoutId = $(this).data('layout-id');
+            // This would load layout data from server
+            alert(`Loading layout ${layoutId} - Feature to be implemented`);
+        });
+        
+        // Delete layout
+        $('.delete-layout').on('click', function() {
+            if (confirm('Are you sure you want to delete this layout?')) {
+                const layoutId = $(this).data('layout-id');
+                // This would delete layout via AJAX
+                alert(`Deleting layout ${layoutId} - Feature to be implemented`);
+            }
+        });
+        
+        // Initialize on page load
+        initializeGrid();
+    });
+    </script>
+</body>
+</html>

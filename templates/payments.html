@@ -1,0 +1,556 @@
+{% extends 'base.html' %}
+
+{% block title %}Payment - Booking {{ booking.booking_id }}{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Progress Bar -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-3">
+                            <div class="step completed">
+                                <div class="step-icon bg-success text-white">
+                                    <i class="bi bi-check"></i>
+                                </div>
+                                <div class="step-label">Select Seats</div>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="step completed">
+                                <div class="step-icon bg-success text-white">
+                                    <i class="bi bi-check"></i>
+                                </div>
+                                <div class="step-label">Booking Details</div>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="step active">
+                                <div class="step-icon bg-primary text-white">3</div>
+                                <div class="step-label">Payment</div>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="step">
+                                <div class="step-icon bg-secondary text-white">4</div>
+                                <div class="step-label">Confirmation</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Timer -->
+            <div class="card border-warning mb-4">
+                <div class="card-body text-center">
+                    <h5 class="card-title text-warning">
+                        <i class="bi bi-clock-fill"></i> Complete Payment Within
+                    </h5>
+                    <div class="countdown display-4 text-danger" id="countdown-timer">05:00</div>
+                    <p class="text-muted mb-0">Your seats will be released if payment is not completed in time</p>
+                </div>
+            </div>
+
+            <!-- Booking Summary -->
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-receipt"></i> Booking Summary
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Booking Details</h6>
+                            <p class="mb-1"><strong>Booking ID:</strong> {{ booking.booking_id }}</p>
+                            <p class="mb-1"><strong>Passenger:</strong> {{ booking.passenger_name }}</p>
+                            <p class="mb-1"><strong>Email:</strong> {{ booking.passenger_email }}</p>
+                            <p class="mb-1"><strong>Phone:</strong> {{ booking.passenger_phone }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Trip Details</h6>
+                            <p class="mb-1">
+                                <strong>Route:</strong> 
+                                {{ booking.trip.route.origin.name }} → {{ booking.trip.route.destination.name }}
+                            </p>
+                            <p class="mb-1">
+                                <strong>Date:</strong> {{ booking.trip.departure_time|date:"F j, Y" }}
+                            </p>
+                            <p class="mb-1">
+                                <strong>Time:</strong> {{ booking.trip.departure_time|time:"H:i" }}
+                            </p>
+                            <p class="mb-1">
+                                <strong>Bus:</strong> {{ booking.trip.bus.company.name }} ({{ booking.trip.bus.bus_type }})
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <!-- Selected Seats -->
+                    <h6>Selected Seats</h6>
+                    <div class="row">
+                        {% for booked_seat in booking.booked_seats.all %}
+                        <div class="col-md-3 mb-2">
+                            <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded">
+                                <span>
+                                    <i class="bi bi-car-front"></i> {{ booked_seat.seat.seat_number }}
+                                    {% if booked_seat.seat.seat_class == 'VIP' %}
+                                        <small class="text-warning">(VIP)</small>
+                                    {% endif %}
+                                </span>
+                                <small>KSh {{ booked_seat.price|floatformat:0 }}</small>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Method -->
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-credit-card"></i> Payment Method
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <!-- M-Pesa Payment -->
+                    <div class="text-center mb-4">
+                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='60' viewBox='0 0 120 60'%3E%3Crect width='120' height='60' fill='%2300a86b' rx='10'/%3E%3Ctext x='60' y='35' text-anchor='middle' fill='white' font-size='18' font-weight='bold'%3EM-Pesa%3C/text%3E%3C/svg%3E" alt="M-Pesa" class="img-fluid mb-3">
+                        <h4 class="mb-3">Pay with M-Pesa</h4>
+                        <p class="text-muted">
+                            You will receive an M-Pesa prompt on your phone number: 
+                            <strong>{{ booking.payment_phone }}</strong>
+                        </p>
+                    </div>
+                    
+                    <!-- Payment Form -->
+                    <div class="row justify-content-center">
+                        <div class="col-md-6">
+                            <div class="payment-summary p-4 bg-light rounded">
+                                <h5 class="text-center mb-3">Payment Summary</h5>
+                                
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Seat Charges:</span>
+                                    <span>KSh {{ booking.total_amount|add:-50|floatformat:0 }}</span>
+                                </div>
+                                
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Service Fee:</span>
+                                    <span>KSh 50</span>
+                                </div>
+                                
+                                <hr>
+                                
+                                <div class="d-flex justify-content-between fw-bold h4">
+                                    <span>Total Amount:</span>
+                                    <span class="text-success">KSh {{ booking.total_amount|floatformat:0 }}</span>
+                                </div>
+                                
+                                <div class="text-center mt-4">
+                                    <button type="button" class="btn btn-success btn-lg w-100" id="pay-now-btn">
+                                        <i class="bi bi-phone"></i> Pay Now via M-Pesa
+                                    </button>
+                                </div>
+                                
+                                <div class="text-center mt-3">
+                                    <small class="text-muted">
+                                        <i class="bi bi-shield-check"></i> Secure payment powered by Safaricom M-Pesa
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Payment Instructions -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="alert alert-info">
+                                <h6 class="alert-heading">
+                                    <i class="bi bi-info-circle"></i> Payment Instructions
+                                </h6>
+                                <ol class="mb-0">
+                                    <li>Click the "Pay Now via M-Pesa" button below</li>
+                                    <li>You will receive an M-Pesa prompt on <strong>{{ booking.payment_phone }}</strong></li>
+                                    <li>Enter your M-Pesa PIN to complete the payment</li>
+                                    <li>You will receive a confirmation SMS and email after successful payment</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Alternative Contact -->
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h6>Having Issues?</h6>
+                                    <p class="card-text small">Contact our support team</p>
+                                    <a href="tel:+254700123456" class="btn btn-outline-primary btn-sm">
+                                        <i class="bi bi-telephone"></i> Call Support
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h6>Different Number?</h6>
+                                    <p class="card-text small">Use a different M-Pesa number</p>
+                                    <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#changeNumberModal">
+                                        <i class="bi bi-pencil"></i> Change Number
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sidebar with Help -->
+        <div class="col-lg-4">
+            <div class="card sticky-top" style="top: 20px;">
+                <div class="card-header bg-warning text-dark">
+                    <h6 class="mb-0">
+                        <i class="bi bi-exclamation-triangle"></i> Important Notes
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">
+                            <i class="bi bi-clock text-danger"></i>
+                            <strong>Payment must be completed within 5 minutes</strong>
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-phone text-primary"></i>
+                            Ensure your phone number <strong>{{ booking.payment_phone }}</strong> has sufficient M-Pesa balance
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-wifi text-success"></i>
+                            Make sure you have good network coverage
+                        </li>
+                        <li class="mb-0">
+                            <i class="bi bi-shield-check text-info"></i>
+                            Your booking will be automatically confirmed after payment
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- FAQ -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="bi bi-question-circle"></i> Frequently Asked Questions
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="accordion accordion-flush" id="faqAccordion">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                                    What if I don't receive M-Pesa prompt?
+                                </button>
+                            </h2>
+                            <div id="faq1" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    <small>Check your phone network and try again. If the issue persists, contact our support team.</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                                    Can I use a different phone number?
+                                </button>
+                            </h2>
+                            <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    <small>Yes, click "Change Number" to use a different M-Pesa number for payment.</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                                    What happens if payment fails?
+                                </button>
+                            </h2>
+                            <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    <small>You can try again within the 5-minute window. If time expires, you'll need to start the booking process again.</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Change Phone Number Modal -->
+<div class="modal fade" id="changeNumberModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Change Payment Number</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="new-phone-number" class="form-label">M-Pesa Phone Number</label>
+                    <input type="tel" class="form-control" id="new-phone-number" placeholder="0712345678" value="{{ booking.payment_phone }}">
+                    <div class="form-text">Enter the M-Pesa number you want to use for payment</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="update-phone-btn">Update Number</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Payment Processing Modal -->
+<div class="modal fade" id="paymentProcessingModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body text-center p-5">
+                <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;"></div>
+                <h5>Processing Payment...</h5>
+                <p class="text-muted mb-0">Please check your phone for M-Pesa prompt and enter your PIN</p>
+                
+                <div class="mt-4">
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%" id="payment-progress"></div>
+                    </div>
+                </div>
+                
+                <div class="mt-3">
+                    <button type="button" class="btn btn-outline-secondary" id="cancel-payment">Cancel Payment</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.step {
+    position: relative;
+}
+
+.step-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.step.completed .step-icon {
+    background-color: #28a745 !important;
+}
+
+.step.active .step-icon {
+    background-color: #007bff !important;
+}
+
+.step-label {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.countdown {
+    font-family: 'Courier New', monospace;
+}
+
+.payment-summary {
+    border: 2px solid #e9ecef;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    let timeRemaining = {{ time_remaining }};
+    let paymentInProgress = false;
+    let paymentTimer;
+    let progressInterval;
+    
+    // Countdown timer
+    function updateCountdown() {
+        if (timeRemaining <= 0) {
+            window.location.href = "{% url 'payment' booking.booking_id %}";
+            return;
+        }
+        
+        const minutes = Math.floor(timeRemaining / 60);
+        const seconds = timeRemaining % 60;
+        $('#countdown-timer').text(
+            `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+        );
+        
+        // Change color when time is running out
+        if (timeRemaining <= 60) {
+            $('#countdown-timer').addClass('text-danger').removeClass('text-warning');
+        } else if (timeRemaining <= 120) {
+            $('#countdown-timer').addClass('text-warning').removeClass('text-danger');
+        }
+        
+        timeRemaining--;
+    }
+    
+    // Start countdown
+    updateCountdown();
+    const countdownInterval = setInterval(updateCountdown, 1000);
+    
+    // Pay Now button
+    $('#pay-now-btn').on('click', function() {
+        if (paymentInProgress) return;
+        
+        paymentInProgress = true;
+        $('#paymentProcessingModal').modal('show');
+        
+        // Start payment process
+        processPayment();
+    });
+    
+    // Process payment
+    function processPayment() {
+        let progress = 0;
+        progressInterval = setInterval(() => {
+            progress += 10;
+            $('#payment-progress').css('width', progress + '%');
+            
+            if (progress >= 100) {
+                clearInterval(progressInterval);
+                progress = 0;
+                $('#payment-progress').css('width', '0%');
+            }
+        }, 500);
+        
+        $.ajax({
+            url: "{% url 'process_payment' %}",
+            method: 'POST',
+            data: JSON.stringify({
+                booking_id: '{{ booking.booking_id }}',
+                phone_number: '{{ booking.payment_phone }}'
+            }),
+            contentType: 'application/json',
+            success: function(response) {
+                clearInterval(progressInterval);
+                clearInterval(countdownInterval);
+                
+                if (response.success) {
+                    // Payment successful
+                    $('#paymentProcessingModal').modal('hide');
+                    
+                    // Show success message
+                    showPaymentSuccess(response.transaction_id);
+                    
+                    // Redirect to confirmation page
+                    setTimeout(() => {
+                        window.location.href = "{% url 'booking_confirmation' booking.booking_id %}";
+                    }, 3000);
+                } else {
+                    // Payment failed
+                    $('#paymentProcessingModal').modal('hide');
+                    showPaymentError(response.message || 'Payment failed. Please try again.');
+                    paymentInProgress = false;
+                }
+            },
+            error: function() {
+                clearInterval(progressInterval);
+                $('#paymentProcessingModal').modal('hide');
+                showPaymentError('Network error. Please check your connection and try again.');
+                paymentInProgress = false;
+            }
+        });
+        
+        // Simulate payment timeout after 60 seconds
+        paymentTimer = setTimeout(() => {
+            if (paymentInProgress) {
+                clearInterval(progressInterval);
+                $('#paymentProcessingModal').modal('hide');
+                showPaymentError('Payment timeout. Please try again.');
+                paymentInProgress = false;
+            }
+        }, 60000);
+    }
+    
+    // Cancel payment
+    $('#cancel-payment').on('click', function() {
+        clearTimeout(paymentTimer);
+        clearInterval(progressInterval);
+        $('#paymentProcessingModal').modal('hide');
+        paymentInProgress = false;
+    });
+    
+    // Show payment success
+    function showPaymentSuccess(transactionId) {
+        const alert = $(`
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <h5 class="alert-heading"><i class="bi bi-check-circle"></i> Payment Successful!</h5>
+                <p class="mb-0">Transaction ID: <strong>${transactionId}</strong></p>
+                <p class="mb-0">Redirecting to confirmation page...</p>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        `);
+        $('main').prepend(alert);
+    }
+    
+    // Show payment error
+    function showPaymentError(message) {
+        const alert = $(`
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <h5 class="alert-heading"><i class="bi bi-exclamation-triangle"></i> Payment Failed</h5>
+                <p class="mb-0">${message}</p>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        `);
+        $('main').prepend(alert);
+        
+        // Auto-dismiss after 10 seconds
+        setTimeout(() => {
+            alert.fadeOut();
+        }, 10000);
+    }
+    
+    // Update phone number
+    $('#update-phone-btn').on('click', function() {
+        const newNumber = $('#new-phone-number').val().trim();
+        const phoneRegex = /^(\+254|0)[7-9]\d{8}$/;
+        
+        if (!phoneRegex.test(newNumber)) {
+            alert('Please enter a valid Kenyan phone number (e.g., 0712345678)');
+            return;
+        }
+        
+        // Update the displayed number
+        $('strong:contains("{{ booking.payment_phone }}")').text(newNumber);
+        $('#changeNumberModal').modal('hide');
+        
+        // You would typically send this update to the server
+        alert('Payment number updated to ' + newNumber);
+    });
+    
+    // Prevent page reload/close during payment
+    $(window).on('beforeunload', function() {
+        if (paymentInProgress) {
+            return 'Payment is in progress. Are you sure you want to leave?';
+        }
+    });
+});
+</script>
+{% endblock %}
