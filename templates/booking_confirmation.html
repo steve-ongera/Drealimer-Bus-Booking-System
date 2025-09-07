@@ -280,9 +280,9 @@
 {% block content %}
 <div class="booking-container">
     <!-- Confirmation Header -->
+    <!-- Success Header -->
     <div class="confirmation-header">
-        <h1>✅ Booking Confirmed!</h1>
-        <p>Your ticket has been successfully booked</p>
+        <h1><i class="bi bi-check-circle"></i> Booking Confirmed!</h1>
         <div class="booking-id">{{ booking.booking_id }}</div>
     </div>
 
@@ -291,7 +291,7 @@
         <!-- Trip Information -->
         <div class="details-section">
             <h3 class="section-title">
-                🚌 Trip Information
+                <i class="bi bi-bus-front"></i> Trip Details
             </h3>
             <div class="info-grid">
                 <div class="info-card">
@@ -337,7 +337,7 @@
         <!-- Passenger Information -->
         <div class="details-section">
             <h3 class="section-title">
-                👤 Passenger Information
+                <i class="bi bi-person"></i> Passenger & Status
             </h3>
             <div class="info-grid">
                 <div class="info-card">
@@ -375,7 +375,7 @@
         <!-- Seat Information -->
         <div class="details-section">
             <h3 class="section-title">
-                🪑 Your Seats
+                <i class="bi bi-person-square"></i> Your Seats
             </h3>
             <div class="seats-section">
                 <div class="seats-grid">
@@ -448,18 +448,13 @@
     </div>
 
     <!-- Action Buttons -->
+        <!-- Action Buttons -->
     <div class="action-buttons">
-        <button class="btn-custom btn-success-custom" onclick="window.print()">
-            🖨️ Print Ticket
-        </button>
-        <a href="{% url 'download_booking_pdf' booking.booking_id %}" class="btn-custom btn-primary-custom">
-            📄 Download PDF
+        <a href="{% url 'download_booking_pdf' booking.booking_id %}" class="on btn-primary">
+            <i class="bi bi-download"></i> Download receipt
         </a>
-        <a href="mailto:{{ booking.passenger_email }}?subject=Booking Confirmation - {{ booking.booking_id }}" class="btn-custom btn-secondary-custom">
-            📧 Email Ticket
-        </a>
-        <a href="{% url 'home' %}" class="btn-custom btn-secondary-custom">
-            🏠 Back to Home
+        <a href="{% url 'home' %}" class=" btn-secondary">
+            <i class="bi bi-house"></i> Back Home
         </a>
     </div>
 </div>
