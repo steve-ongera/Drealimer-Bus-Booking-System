@@ -23,7 +23,8 @@ def home(request):
 
 def location_autocomplete(request):
     """AJAX endpoint for location autocomplete"""
-    if request.is_ajax():
+    # Replace request.is_ajax() with header check
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         q = request.GET.get('term', '')
         locations = Location.objects.filter(
             name__icontains=q
