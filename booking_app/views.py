@@ -408,118 +408,115 @@ def download_booking_pdf(request, booking_id):
     font_config = FontConfiguration()
     html = HTML(string=html_string, base_url=request.build_absolute_uri())
     
-    # CSS for PDF styling
+    # CSS for small horizontal receipt styling
     css_string = """
         @page {
-            size: A4;
-            margin: 1cm;
+            size: 8.5in 4in;
+            margin: 0.2in;
         }
         body {
-            font-family: Arial, sans-serif;
-            font-size: 12px;
-            line-height: 1.4;
+            font-family: 'Courier New', monospace;
+            font-size: 8px;
+            line-height: 1.2;
+            margin: 0;
+            padding: 0;
         }
-        .pdf-header {
+        .receipt-container {
+            border: 2px dashed #333;
+            padding: 8px;
+            height: calc(4in - 0.4in - 16px);
+            display: flex;
+            flex-direction: column;
+        }
+        .receipt-header {
             text-align: center;
-            margin-bottom: 30px;
-            border-bottom: 2px solid #333;
-            padding-bottom: 20px;
+            margin-bottom: 8px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 4px;
         }
-        .company-logo {
-            font-size: 24px;
+        .company-name {
+            font-size: 12px;
             font-weight: bold;
-            color: #333;
-            margin-bottom: 10px;
+            margin-bottom: 2px;
         }
-        .booking-title {
-            font-size: 20px;
-            color: #28a745;
-            margin: 20px 0;
+        .receipt-title {
+            font-size: 10px;
+            font-weight: bold;
+            margin-bottom: 2px;
         }
         .booking-id {
-            font-size: 16px;
+            font-size: 9px;
             font-weight: bold;
-            background: #f8f9fa;
-            padding: 10px;
-            border-radius: 5px;
-            margin: 15px 0;
-            text-align: center;
-        }
-        .section {
-            margin-bottom: 25px;
-        }
-        .section-title {
-            font-size: 16px;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 15px;
-            border-bottom: 1px solid #ddd;
-            padding-bottom: 5px;
-        }
-        .info-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 15px;
-        }
-        .info-table td {
-            padding: 8px;
-            border-bottom: 1px solid #eee;
-        }
-        .info-table .label {
-            font-weight: bold;
-            width: 40%;
-            color: #666;
-        }
-        .info-table .value {
-            color: #333;
-        }
-        .seats-section {
-            text-align: center;
-            margin: 20px 0;
-        }
-        .seat {
-            display: inline-block;
-            background: #28a745;
+            background: #000;
             color: white;
-            padding: 8px 12px;
-            margin: 3px;
-            border-radius: 5px;
-            font-weight: bold;
+            padding: 2px 4px;
+            display: inline-block;
+            margin: 2px 0;
         }
-        .total-section {
-            background: #fff3cd;
-            padding: 20px;
-            border-radius: 8px;
+        .receipt-body {
+            display: flex;
+            gap: 8px;
+            flex: 1;
+            font-size: 7px;
+        }
+        .column {
+            flex: 1;
+        }
+        .info-line {
+            margin-bottom: 2px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .label {
+            font-weight: bold;
+            width: 45%;
+            text-transform: uppercase;
+        }
+        .value {
+            width: 55%;
+            text-align: right;
+        }
+        .section-divider {
+            border-bottom: 1px dashed #999;
+            margin: 4px 0;
+        }
+        .seats {
             text-align: center;
-            margin: 20px 0;
-            border: 1px solid #ffeaa7;
-        }
-        .total-amount {
-            font-size: 24px;
             font-weight: bold;
-            color: #333;
+            background: #f0f0f0;
+            padding: 2px;
+            margin: 2px 0;
+        }
+        .total-line {
+            font-size: 10px;
+            font-weight: bold;
+            text-align: center;
+            background: #000;
+            color: white;
+            padding: 4px;
+            margin: 4px 0;
         }
         .footer {
-            margin-top: 40px;
             text-align: center;
-            font-size: 10px;
-            color: #666;
-            border-top: 1px solid #ddd;
-            padding-top: 20px;
+            font-size: 6px;
+            margin-top: 4px;
+            border-top: 1px solid #333;
+            padding-top: 4px;
         }
-        .status-badge {
-            padding: 5px 10px;
-            border-radius: 15px;
-            font-weight: bold;
-            font-size: 11px;
+        .status {
+            display: inline-block;
+            padding: 1px 4px;
+            background: #28a745;
+            color: white;
+            font-size: 6px;
+            border-radius: 2px;
         }
-        .status-confirmed {
-            background: #d4edda;
-            color: #155724;
-        }
-        .status-pending {
-            background: #fff3cd;
-            color: #856404;
+        .barcode {
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: 6px;
+            letter-spacing: 2px;
+            margin: 2px 0;
         }
     """
     
