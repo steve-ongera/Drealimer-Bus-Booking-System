@@ -1,0 +1,155 @@
+<!-- booking_app/templates/booking_app/booking_pdf.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Booking Receipt - {{ booking.booking_id }}</title>
+</head>
+<body>
+    <div class="pdf-header">
+        <div class="company-logo">{{ company_info.name }}</div>
+        <div style="font-size: 12px; margin-bottom: 10px;">
+            {{ company_info.address }}<br>
+            Phone: {{ company_info.phone }} | Email: {{ company_info.email }}
+        </div>
+        <div class="booking-title">BOOKING CONFIRMATION RECEIPT</div>
+        <div class="booking-id">Booking ID: {{ booking.booking_id }}</div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">🚌 TRIP INFORMATION</div>
+        <table class="info-table">
+            <tr>
+                <td class="label">Route:</td>
+                <td class="value">{{ booking.trip.route }}</td>
+            </tr>
+            <tr>
+                <td class="label">Bus Company:</td>
+                <td class="value">{{ booking.trip.bus.company.name }}</td>
+            </tr>
+            <tr>
+                <td class="label">Bus Number:</td>
+                <td class="value">{{ booking.trip.bus.number_plate }}</td>
+            </tr>
+            <tr>
+                <td class="label">Bus Type:</td>
+                <td class="value">{{ booking.trip.bus.bus_type }}</td>
+            </tr>
+            <tr>
+                <td class="label">Departure Date & Time:</td>
+                <td class="value">{{ booking.trip.departure_time|date:"F d, Y" }} at {{ booking.trip.departure_time|time:"H:i" }}</td>
+            </tr>
+            <tr>
+                <td class="label">Expected Arrival:</td>
+                <td class="value">{{ booking.trip.arrival_time|date:"F d, Y" }} at {{ booking.trip.arrival_time|time:"H:i" }}</td>
+            </tr>
+            <tr>
+                <td class="label">Pickup Location:</td>
+                <td class="value">{{ booking.pickup_location.name }}</td>
+            </tr>
+            <tr>
+                <td class="label">Drop-off Location:</td>
+                <td class="value">{{ booking.dropoff_location.name }}</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="section">
+        <div class="section-title">👤 PASSENGER INFORMATION</div>
+        <table class="info-table">
+            <tr>
+                <td class="label">Full Name:</td>
+                <td class="value">{{ booking.passenger_name }}</td>
+            </tr>
+            <tr>
+                <td class="label">Email Address:</td>
+                <td class="value">{{ booking.passenger_email }}</td>
+            </tr>
+            <tr>
+                <td class="label">Phone Number:</td>
+                <td class="value">{{ booking.passenger_phone }}</td>
+            </tr>
+            <tr>
+                <td class="label">ID Number:</td>
+                <td class="value">{{ booking.passenger_id_number }}</td>
+            </tr>
+            <tr>
+                <td class="label">Age:</td>
+                <td class="value">{{ booking.passenger_age }} years</td>
+            </tr>
+            <tr>
+                <td class="label">Nationality:</td>
+                <td class="value">{% if booking.is_kenyan %}Kenyan{% else %}International{% endif %}</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="section">
+        <div class="section-title">🪑 SEAT INFORMATION</div>
+        <div class="seats-section">
+            {% for booked_seat in booking.booked_seats.all %}
+                <span class="seat">{{ booked_seat.seat.seat_number }}</span>
+            {% empty %}
+                <p>No seats assigned</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">📋 BOOKING DETAILS</div>
+        <table class="info-table">
+            <tr>
+                <td class="label">Booking Status:</td>
+                <td class="value">
+                    <span class="status-badge {% if booking.status == 'CONFIRMED' %}status-confirmed{% else %}status-pending{% endif %}">
+                        {{ booking.get_status_display }}
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td class="label">Booking Date:</td>
+                <td class="value">{{ booking.created_at|date:"F d, Y H:i" }}</td>
+            </tr>
+            {% if booking.paid_at %}
+            <tr>
+                <td class="label">Payment Date:</td>
+                <td class="value">{{ booking.paid_at|date:"F d, Y H:i" }}</td>
+            </tr>
+            {% endif %}
+            {% if booking.mpesa_transaction_id %}
+            <tr>
+                <td class="label">M-Pesa Transaction ID:</td>
+                <td class="value">{{ booking.mpesa_transaction_id }}</td>
+            </tr>
+            {% endif %}
+        </table>
+    </div>
+
+    <div class="total-section">
+        <div style="font-size: 16px; margin-bottom: 10px;">Total Amount Paid</div>
+        <div class="total-amount">KSh {{ booking.total_amount|floatformat:0 }}</div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">📌 IMPORTANT INFORMATION</div>
+        <ul style="margin-left: 20px; line-height: 1.6;">
+            <li>Please arrive at the pickup location <strong>30 minutes before departure time</strong></li>
+            <li>Carry a valid ID document for verification</li>
+            <li>This booking confirmation serves as your ticket</li>
+            <li>For any inquiries, contact {{ booking.trip.bus.company.name }} at {{ booking.trip.bus.company.phone }}</li>
+            {% if booking.status == 'PENDING' %}
+            <li style="color: #dc3545;"><strong>Payment is still pending. Please complete payment to confirm your booking.</strong></li>
+            {% endif %}
+        </ul>
+    </div>
+
+    <div class="footer">
+        <p>Thank you for choosing {{ company_info.name }}!</p>
+        <p>Generated on {{ "now"|date:"F d, Y H:i" }}</p>
+        <p style="margin-top: 15px; font-size: 9px;">
+            This is a computer-generated receipt. No signature required.<br>
+            For support, visit our website or contact us at {{ company_info.email }}
+        </p>
+    </div>
+</body>
+</html>

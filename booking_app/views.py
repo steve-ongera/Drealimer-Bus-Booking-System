@@ -388,7 +388,7 @@ def download_booking_pdf(request, booking_id):
     booking = get_object_or_404(Booking, booking_id=booking_id)
     
     # Load the template
-    template = get_template('booking_app/booking_pdf.html')
+    template = get_template('booking_pdf.html')
     
     # Context for the template
     context = {
