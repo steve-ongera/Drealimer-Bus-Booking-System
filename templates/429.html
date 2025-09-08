@@ -1,0 +1,354 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Too Many Requests - DreamLine Bus Service{% endblock %}
+
+{% block extra_css %}
+<style>
+    .error-container {
+        min-height: 70vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 0;
+    }
+    
+    .error-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        padding: 3rem;
+        text-align: center;
+        max-width: 600px;
+        width: 100%;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .error-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+    }
+    
+    .error-icon {
+        font-size: 6rem;
+        color: #ffc107;
+        margin-bottom: 1.5rem;
+        animation: slowPulse 3s infinite;
+    }
+    
+    @keyframes slowPulse {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.02); opacity: 0.8; }
+    }
+    
+    .error-code {
+        font-size: 5rem;
+        font-weight: 900;
+        color: #ffc107;
+        margin-bottom: 0.5rem;
+        line-height: 1;
+        text-shadow: 2px 2px 4px rgba(255, 193, 7, 0.2);
+    }
+    
+    .error-title {
+        font-size: 2rem;
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 1rem;
+    }
+    
+    .error-message {
+        font-size: 1.1rem;
+        color: #6c757d;
+        margin-bottom: 2rem;
+        line-height: 1.6;
+    }
+    
+    .countdown-container {
+        background: #fff3cd;
+        border: 1px solid #ffeaa7;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin: 2rem 0;
+    }
+    
+    .countdown-title {
+        color: #856404;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        justify-content: center;
+    }
+    
+    .countdown-timer {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #856404;
+        font-family: 'Courier New', monospace;
+    }
+    
+    .rate-info {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin: 2rem 0;
+        text-align: left;
+    }
+    
+    .rate-info h5 {
+        color: #495057;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        justify-content: center;
+    }
+    
+    .rate-limits {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .rate-limits li {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 0.75rem;
+        padding: 0.5rem;
+        border-radius: 5px;
+        background: white;
+        border: 1px solid #e9ecef;
+    }
+    
+    .limit-icon {
+        color: #28a745;
+        font-size: 1.1rem;
+    }
+    
+    .limit-text {
+        flex: 1;
+        color: #495057;
+        line-height: 1.4;
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin: 2rem 0;
+    }
+    
+    .btn-retry {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        border: none;
+        border-radius: 50px;
+        padding: 0.8rem 2rem;
+        color: white;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        opacity: 0.5;
+        pointer-events: none;
+    }
+    
+    .btn-retry.enabled {
+        opacity: 1;
+        pointer-events: auto;
+    }
+    
+    .btn-retry.enabled:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3);
+        color: white;
+        text-decoration: none;
+    }
+    
+    .btn-home {
+        background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+        border: none;
+        border-radius: 50px;
+        padding: 0.8rem 2rem;
+        color: white;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .btn-home:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(108, 117, 125, 0.3);
+        color: white;
+        text-decoration: none;
+    }
+    
+    @media (max-width: 768px) {
+        .error-card {
+            margin: 1rem;
+            padding: 2rem;
+        }
+        
+        .error-code {
+            font-size: 4rem;
+        }
+        
+        .error-title {
+            font-size: 1.5rem;
+        }
+        
+        .countdown-timer {
+            font-size: 1.5rem;
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .btn-retry, .btn-home {
+            width: 100%;
+            max-width: 300px;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="error-container">
+    <div class="error-card">
+        <i class="bi bi-speedometer error-icon"></i>
+        <div class="error-code">429</div>
+        <h1 class="error-title">Too Many Requests</h1>
+        <p class="error-message">
+            Whoa there, speed racer! You're making requests faster than our buses can handle. 
+            Please slow down and try again in a moment.
+        </p>
+        
+        <div class="countdown-container">
+            <div class="countdown-title">
+                <i class="bi bi-hourglass-split"></i>
+                Please wait before trying again
+            </div>
+            <div class="countdown-timer" id="countdown">01:00</div>
+        </div>
+        
+        <div class="action-buttons">
+            <button class="btn btn-retry" id="retryBtn" onclick="retryRequest()">
+                <i class="bi bi-arrow-clockwise"></i>
+                Try Again
+            </button>
+            <a href="{% url 'home' %}" class="btn btn-home">
+                <i class="bi bi-house-door"></i>
+                Go Home
+            </a>
+        </div>
+        
+        <div class="rate-info">
+            <h5>
+                <i class="bi bi-info-circle"></i>
+                Rate Limits
+            </h5>
+            <ul class="rate-limits">
+                <li>
+                    <i class="bi bi-check-circle limit-icon"></i>
+                    <span class="limit-text">
+                        <strong>Normal browsing:</strong> Up to 100 requests per minute
+                    </span>
+                </li>
+                <li>
+                    <i class="bi bi-check-circle limit-icon"></i>
+                    <span class="limit-text">
+                        <strong>Booking searches:</strong> Up to 20 searches per minute
+                    </span>
+                </li>
+                <li>
+                    <i class="bi bi-check-circle limit-icon"></i>
+                    <span class="limit-text">
+                        <strong>API calls:</strong> Up to 50 calls per minute
+                    </span>
+                </li>
+                <li>
+                    <i class="bi bi-check-circle limit-icon"></i>
+                    <span class="limit-text">
+                        <strong>File downloads:</strong> Up to 10 downloads per minute
+                    </span>
+                </li>
+            </ul>
+        </div>
+        
+        <div style="background: #e7f3ff; border: 1px solid #b8daff; border-radius: 10px; padding: 1.5rem; margin-top: 1.5rem;">
+            <h6 style="color: #004085; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; justify-content: center;">
+                <i class="bi bi-lightbulb"></i>
+                Pro Tips
+            </h6>
+            <ul style="color: #004085; font-size: 0.95rem; margin: 0; padding-left: 1.5rem; line-height: 1.6;">
+                <li>Use our search filters to refine results instead of multiple searches</li>
+                <li>Bookmark frequently visited pages for faster access</li>
+                <li>Consider using our mobile app for a smoother experience</li>
+                <li>Contact support if you need to make bulk requests</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+let countdownTime = 60; // 60 seconds
+let countdownInterval;
+
+function startCountdown() {
+    const countdownElement = document.getElementById('countdown');
+    const retryBtn = document.getElementById('retryBtn');
+    
+    countdownInterval = setInterval(() => {
+        countdownTime--;
+        
+        const minutes = Math.floor(countdownTime / 60);
+        const seconds = countdownTime % 60;
+        
+        countdownElement.textContent = 
+            `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        
+        if (countdownTime <= 0) {
+            clearInterval(countdownInterval);
+            retryBtn.classList.add('enabled');
+            countdownElement.textContent = '00:00';
+            countdownElement.parentElement.querySelector('.countdown-title').innerHTML = 
+                '<i class="bi bi-check-circle"></i> You can try again now';
+        }
+    }, 1000);
+}
+
+function retryRequest() {
+    const retryBtn = document.getElementById('retryBtn');
+    if (retryBtn.classList.contains('enabled')) {
+        location.reload();
+    }
+}
+
+// Start countdown when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    startCountdown();
+});
+</script>
+{% endblock %}
