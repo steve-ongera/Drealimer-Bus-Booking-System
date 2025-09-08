@@ -12,6 +12,21 @@ import json
 import uuid
 from .models import *
 
+import json
+import uuid
+import tempfile
+import os
+from django.shortcuts import render, get_object_or_404
+from django.http import JsonResponse, HttpResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.utils import timezone
+from django.core.mail import EmailMessage
+from django.template.loader import get_template
+from django.conf import settings
+from weasyprint import HTML, CSS
+from weasyprint.text.fonts import FontConfiguration
+from .models import Booking, TripSeatAvailability
+
 from .forms import SearchForm, BookingForm, GuestBookingForm
 
 def home(request):
@@ -258,9 +273,30 @@ def payment(request, booking_id):
         'time_remaining': (booking.expires_at - timezone.now()).total_seconds()
     })
 
+def booking_expired(request, booking_id):
+    """Show booking expired page"""
+    booking = get_object_or_404(Booking, booking_id=booking_id)
+    
+    # Update booking status to expired if it's still pending
+    if booking.is_expired() and booking.status == 'PENDING':
+        booking.status = 'EXPIRED'
+        booking.save()
+        
+        # Release reserved seats
+        TripSeatAvailability.objects.filter(
+            booking=booking
+        ).update(
+            is_available=True,
+            reserved_until=None,
+            booking=None
+        )
+    
+    return render(request, 'booking_expired.html', {'booking': booking})
+
+
 @csrf_exempt
 def process_payment(request):
-    """Process M-Pesa payment (mock implementation)"""
+    """Process M-Pesa payment with automatic PDF email confirmation"""
     if request.method == 'POST':
         data = json.loads(request.body)
         booking_id = data.get('booking_id')
@@ -268,66 +304,398 @@ def process_payment(request):
         
         booking = get_object_or_404(Booking, booking_id=booking_id)
         
+        # Check if booking is still valid
+        if booking.is_expired():
+            return JsonResponse({
+                'success': False,
+                'error': 'Booking has expired',
+                'redirect_url': f'/booking/{booking_id}/expired/'
+            })
+        
         # Mock M-Pesa payment processing
         # In real implementation, integrate with Safaricom API
         
-        # Simulate successful payment
-        booking.status = 'CONFIRMED'
-        booking.paid_at = timezone.now()
-        booking.mpesa_transaction_id = f"MPesa{uuid.uuid4().hex[:10].upper()}"
-        booking.save()
+        try:
+            # Simulate successful payment
+            booking.status = 'CONFIRMED'
+            booking.paid_at = timezone.now()
+            booking.mpesa_transaction_id = f"MPesa{uuid.uuid4().hex[:10].upper()}"
+            booking.payment_phone = phone_number
+            booking.save()
+            
+            # Update seat availability
+            TripSeatAvailability.objects.filter(
+                booking=booking
+            ).update(
+                is_available=False,
+                reserved_until=None
+            )
+            
+            # Send confirmation email with PDF attachment
+            email_sent = send_booking_confirmation_with_pdf(request, booking)
+            
+            return JsonResponse({
+                'success': True,
+                'transaction_id': booking.mpesa_transaction_id,
+                'booking_id': booking.booking_id,
+                'email_sent': email_sent,
+                'redirect_url': f'/booking/{booking_id}/confirmation/'
+            })
+            
+        except Exception as e:
+            # Log the error in production
+            print(f"Payment processing error: {str(e)}")
+            return JsonResponse({
+                'success': False,
+                'error': 'Payment processing failed. Please try again.'
+            })
+    
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
+
+
+def generate_booking_pdf(request, booking):
+    """Generate PDF for booking"""
+    try:
+        # Load the template
+        template = get_template('booking_pdf.html')
         
-        # Update seat availability
-        TripSeatAvailability.objects.filter(
-            booking=booking
-        ).update(
-            is_available=False,
-            reserved_until=None
+        # Context for the template
+        context = {
+            'booking': booking,
+            'company_info': {
+                'name': 'DreamLine Bus Service',
+                'address': 'P.O. Box 12345, Nairobi, Kenya',
+                'phone': '+254 700 123456',
+                'email': 'info@dreamlinebus.com',
+                'website': 'www.dreamlinebus.com'
+            }
+        }
+        
+        # Render HTML
+        html_string = template.render(context)
+        
+        # Generate PDF
+        font_config = FontConfiguration()
+        html = HTML(string=html_string, base_url=request.build_absolute_uri())
+        
+        # CSS for small horizontal receipt styling
+        css_string = """
+            @page {
+                size: 8.5in 4in;
+                margin: 0.2in;
+            }
+            body {
+                font-family: 'Courier New', monospace;
+                font-size: 8px;
+                line-height: 1.2;
+                margin: 0;
+                padding: 0;
+            }
+            .receipt-container {
+                border: 2px dashed #333;
+                padding: 8px;
+                height: calc(4in - 0.4in - 16px);
+                display: flex;
+                flex-direction: column;
+            }
+            .receipt-header {
+                text-align: center;
+                margin-bottom: 8px;
+                border-bottom: 1px solid #333;
+                padding-bottom: 4px;
+            }
+            .company-name {
+                font-size: 12px;
+                font-weight: bold;
+                margin-bottom: 2px;
+            }
+            .receipt-title {
+                font-size: 10px;
+                font-weight: bold;
+                margin-bottom: 2px;
+            }
+            .booking-id {
+                font-size: 9px;
+                font-weight: bold;
+                background: #000;
+                color: white;
+                padding: 2px 4px;
+                display: inline-block;
+                margin: 2px 0;
+            }
+            .receipt-body {
+                display: flex;
+                gap: 8px;
+                flex: 1;
+                font-size: 7px;
+            }
+            .column {
+                flex: 1;
+            }
+            .info-line {
+                margin-bottom: 2px;
+                display: flex;
+                justify-content: space-between;
+            }
+            .label {
+                font-weight: bold;
+                width: 45%;
+                text-transform: uppercase;
+            }
+            .value {
+                width: 55%;
+                text-align: right;
+            }
+            .section-divider {
+                border-bottom: 1px dashed #999;
+                margin: 4px 0;
+            }
+            .seats {
+                text-align: center;
+                font-weight: bold;
+                background: #f0f0f0;
+                padding: 2px;
+                margin: 2px 0;
+            }
+            .total-line {
+                font-size: 10px;
+                font-weight: bold;
+                text-align: center;
+                background: #000;
+                color: white;
+                padding: 4px;
+                margin: 4px 0;
+            }
+            .footer {
+                text-align: center;
+                font-size: 6px;
+                margin-top: 4px;
+                border-top: 1px solid #333;
+                padding-top: 4px;
+            }
+            .status {
+                display: inline-block;
+                padding: 1px 4px;
+                background: #28a745;
+                color: white;
+                font-size: 6px;
+                border-radius: 2px;
+            }
+            .barcode {
+                text-align: center;
+                font-family: 'Courier New', monospace;
+                font-size: 6px;
+                letter-spacing: 2px;
+                margin: 2px 0;
+            }
+        """
+        
+        main_css = CSS(string=css_string, font_config=font_config)
+        
+        # Generate PDF
+        pdf = html.render(stylesheets=[main_css], font_config=font_config)
+        
+        return pdf.write_pdf()
+        
+    except Exception as e:
+        print(f"PDF generation error: {str(e)}")
+        return None
+
+def send_booking_confirmation_with_pdf(request, booking):
+    """Send booking confirmation email with PDF attachment"""
+    try:
+        # Generate PDF
+        pdf_content = generate_booking_pdf(request, booking)
+        if not pdf_content:
+            # Fallback to sending email without PDF
+            return send_booking_confirmation_text_only(booking)
+        
+        # Email subject and content
+        subject = f'Booking Confirmed - {booking.booking_id} | DreamLine Bus Service'
+        
+        # HTML email template
+        html_message = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <style>
+                body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
+                .header {{ background: #28a745; color: white; padding: 20px; text-align: center; }}
+                .content {{ padding: 20px; }}
+                .booking-info {{ background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 15px 0; }}
+                .seats {{ background: #007bff; color: white; padding: 5px 10px; border-radius: 3px; margin: 2px; }}
+                .total {{ font-size: 18px; font-weight: bold; color: #28a745; }}
+                .footer {{ background: #f8f9fa; padding: 15px; text-align: center; font-size: 12px; color: #666; }}
+                .important {{ background: #fff3cd; padding: 10px; border-radius: 5px; margin: 15px 0; border-left: 4px solid #ffc107; }}
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h1>🎉 Booking Confirmed!</h1>
+                <p>Thank you for choosing DreamLine Bus Service</p>
+            </div>
+            
+            <div class="content">
+                <p>Dear {booking.passenger_name},</p>
+                
+                <p>Great news! Your booking has been successfully confirmed and payment processed.</p>
+                
+                <div class="booking-info">
+                    <h3>📋 Booking Details</h3>
+                    <p><strong>Booking ID:</strong> {booking.booking_id}</p>
+                    <p><strong>Route:</strong> {booking.trip.route}</p>
+                    <p><strong>Bus Company:</strong> {booking.trip.bus.company.name}</p>
+                    <p><strong>Bus Number:</strong> {booking.trip.bus.number_plate}</p>
+                    <p><strong>Departure:</strong> {booking.trip.departure_time.strftime('%B %d, %Y at %H:%M')}</p>
+                    <p><strong>Arrival:</strong> {booking.trip.arrival_time.strftime('%B %d, %Y at %H:%M')}</p>
+                    <p><strong>Pickup Location:</strong> {booking.pickup_location.name}</p>
+                    <p><strong>Drop-off Location:</strong> {booking.dropoff_location.name}</p>
+                    <p><strong>Seats:</strong> 
+                        {' '.join([f'<span class="seats">{seat.seat.seat_number}</span>' for seat in booking.booked_seats.all()])}
+                    </p>
+                    <p class="total"><strong>Total Paid:</strong> KSh {booking.total_amount:,.0f}</p>
+                    <p><strong>Transaction ID:</strong> {booking.mpesa_transaction_id}</p>
+                </div>
+                
+                <div class="important">
+                    <h4>🚨 Important Information:</h4>
+                    <ul>
+                        <li><strong>Arrive 30 minutes early</strong> at the pickup location</li>
+                        <li>Bring a <strong>valid ID</strong> for verification</li>
+                        <li>Keep this confirmation and the attached receipt for your records</li>
+                        <li>Contact us immediately if you need to make changes</li>
+                    </ul>
+                </div>
+                
+                <h4>📞 Need Help?</h4>
+                <p>Our customer support team is available 24/7:</p>
+                <ul>
+                    <li>📱 Phone: +254 700 123456</li>
+                    <li>📧 Email: support@dreamlinebus.com</li>
+                    <li>🌐 Website: www.dreamlinebus.com</li>
+                </ul>
+                
+                <p>Have a safe and comfortable journey!</p>
+                
+                <p>Best regards,<br>
+                <strong>DreamLine Bus Service Team</strong></p>
+            </div>
+            
+            <div class="footer">
+                <p>This is an automated email. Please do not reply directly to this message.</p>
+                <p>© 2024 DreamLine Bus Service. All rights reserved.</p>
+            </div>
+        </body>
+        </html>
+        """
+        
+        # Plain text version
+        text_message = f"""
+        Booking Confirmed - {booking.booking_id}
+        
+        Dear {booking.passenger_name},
+        
+        Your booking has been successfully confirmed!
+        
+        BOOKING DETAILS:
+        ================
+        Booking ID: {booking.booking_id}
+        Route: {booking.trip.route}
+        Bus Company: {booking.trip.bus.company.name}
+        Departure: {booking.trip.departure_time.strftime('%B %d, %Y at %H:%M')}
+        Arrival: {booking.trip.arrival_time.strftime('%B %d, %Y at %H:%M')}
+        Pickup: {booking.pickup_location.name}
+        Drop-off: {booking.dropoff_location.name}
+        Seats: {', '.join([seat.seat.seat_number for seat in booking.booked_seats.all()])}
+        Total Paid: KSh {booking.total_amount:,.0f}
+        Transaction ID: {booking.mpesa_transaction_id}
+        
+        IMPORTANT:
+        - Arrive 30 minutes early at pickup location
+        - Bring valid ID for verification
+        - Keep this confirmation for your records
+        
+        Need help? Contact us at +254 700 123456 or support@dreamlinebus.com
+        
+        Thank you for choosing DreamLine Bus Service!
+        """
+        
+        # Create email message
+        email = EmailMessage(
+            subject=subject,
+            body=text_message,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            to=[booking.passenger_email],
+            reply_to=['support@dreamlinebus.com'],
         )
         
-        # Send confirmation email and SMS
-        send_booking_confirmation(booking)
+        # Add HTML version
+        email.content_subtype = 'html'
+        email.body = html_message
         
-        return JsonResponse({
-            'success': True,
-            'transaction_id': booking.mpesa_transaction_id
-        })
-    
-    return JsonResponse({'success': False})
+        # Attach PDF
+        email.attach(
+            f'booking_{booking.booking_id}.pdf',
+            pdf_content,
+            'application/pdf'
+        )
+        
+        # Send email
+        email.send(fail_silently=False)
+        
+        return True
+        
+    except Exception as e:
+        print(f"Email sending error: {str(e)}")
+        # Try to send text-only email as fallback
+        return send_booking_confirmation_text_only(booking)
+
+def send_booking_confirmation_text_only(booking):
+    """Fallback method to send text-only confirmation email"""
+    try:
+        from django.core.mail import send_mail
+        
+        subject = f'Booking Confirmed - {booking.booking_id}'
+        message = f"""
+        Dear {booking.passenger_name},
+        
+        Your booking has been confirmed!
+        
+        Booking ID: {booking.booking_id}
+        Route: {booking.trip.route}
+        Departure: {booking.trip.departure_time.strftime('%Y-%m-%d %H:%M')}
+        Seats: {', '.join([bs.seat.seat_number for bs in booking.booked_seats.all()])}
+        Total Amount: KSh {booking.total_amount}
+        Transaction ID: {booking.mpesa_transaction_id}
+        
+        Please arrive at the pickup location 30 minutes before departure.
+        
+        Thank you for choosing {booking.trip.bus.company.name}!
+        
+        For support: +254 700 123456
+        """
+        
+        send_mail(
+            subject,
+            message,
+            settings.DEFAULT_FROM_EMAIL,
+            [booking.passenger_email],
+            fail_silently=True,
+        )
+        
+        return True
+        
+    except Exception as e:
+        print(f"Fallback email error: {str(e)}")
+        return False
 
 def booking_confirmation(request, booking_id):
     """Show booking confirmation"""
     booking = get_object_or_404(Booking, booking_id=booking_id)
     return render(request, 'booking_confirmation.html', {'booking': booking})
 
-def send_booking_confirmation(booking):
-    """Send booking confirmation via email and SMS"""
-    subject = f'Booking Confirmation - {booking.booking_id}'
-    message = f"""
-    Dear {booking.passenger_name},
-    
-    Your booking has been confirmed!
-    
-    Booking ID: {booking.booking_id}
-    Trip: {booking.trip.route}
-    Departure: {booking.trip.departure_time.strftime('%Y-%m-%d %H:%M')}
-    Seats: {', '.join([bs.seat.seat_number for bs in booking.booked_seats.all()])}
-    Total Amount: KSh {booking.total_amount}
-    
-    Please arrive at the pickup location 30 minutes before departure.
-    
-    Thank you for choosing {booking.trip.bus.company.name}!
-    """
-    
-    send_mail(
-        subject,
-        message,
-        settings.DEFAULT_FROM_EMAIL,
-        [booking.passenger_email],
-        fail_silently=True,
-    )
-    
-    # SMS sending would be implemented here with SMS provider API
+
 
 # Admin views for seat layout design
 def admin_seat_layout(request, layout_id=None):
