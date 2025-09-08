@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -16,6 +17,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css" rel="stylesheet">
     <!-- jQuery UI for autocomplete -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/themes/ui-lightness/jquery-ui.min.css" rel="stylesheet">
+    <link href="{% static 'css/footer.css' %}" rel="stylesheet">
     
     <style>
         :root {
@@ -522,7 +524,7 @@
         </div>
         
         <div class="drawer-menu">
-            <a href="#" class="drawer-nav-item">
+            <a href="{% url 'home'%}" class="drawer-nav-item">
                 <i class="bi bi-house"></i>
                 Home
             </a>
@@ -570,7 +572,7 @@
             
             <!-- Desktop Navigation -->
             <div class="navbar-nav mx-auto d-none d-lg-flex">
-                <a class="nav-link active" href="#">
+                <a class="nav-link active" href="{% url 'home'%}">
                     <i class="bi bi-house me-1"></i> Home
                 </a>
                 <a class="nav-link" href="#">
@@ -621,40 +623,103 @@
         {% block content %}{% endblock %}
     </main>
 
-    <!-- Footer -->
-    <footer class="bg-dark text-light py-5 mt-5">
+    <!-- Professional Footer -->
+    <footer class="footer py-5 mt-5">
         <div class="container">
             <div class="row">
-                <div class="col-md-4">
-                    <h5><i class="bi bi-bus-front"></i> Dream Line</h5>
-                    <p>Your trusted partner for comfortable and safe bus travel across Kenya.</p>
-                </div>
-                <div class="col-md-4">
-                    <h5>Quick Links</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="#" class="text-light">Book a Trip</a></li>
-                        <li><a href="#" class="text-light">Cancel Booking</a></li>
-                        <li><a href="#" class="text-light">Contact Us</a></li>
-                    </ul>
-                </div>
-                <div class="col-md-4">
-                    <h5>Contact Info</h5>
-                    <p><i class="bi bi-telephone"></i> +254 700 123 456</p>
-                    <p><i class="bi bi-envelope"></i> info@dreamline.co.ke</p>
+                <!-- Brand Section -->
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="footer-brand">
+                        <i class="bi bi-bus-front"></i>
+                        <h5>Dream Line</h5>
+                    </div>
+                    <p class="footer-description">
+                        Your trusted partner for comfortable and safe bus travel across Kenya. 
+                        Experience excellence in transportation with our modern fleet and 
+                        professional service.
+                    </p>
                     <div class="social-links">
-                        <a href="#" class="text-light me-2"><i class="bi bi-facebook"></i></a>
-                        <a href="#" class="text-light me-2"><i class="bi bi-twitter"></i></a>
-                        <a href="#" class="text-light"><i class="bi bi-instagram"></i></a>
+                        <a href="#" class="social-link" aria-label="Facebook">
+                            <i class="bi bi-facebook"></i>
+                        </a>
+                        <a href="#" class="social-link" aria-label="Twitter">
+                            <i class="bi bi-twitter-x"></i>
+                        </a>
+                        <a href="#" class="social-link" aria-label="Instagram">
+                            <i class="bi bi-instagram"></i>
+                        </a>
+                        <a href="#" class="social-link" aria-label="LinkedIn">
+                            <i class="bi bi-linkedin"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Quick Links Section -->
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <div class="footer-section">
+                        <h5>Services</h5>
+                        <ul class="footer-links">
+                            <li><a href="#">Book a Trip</a></li>
+                            <li><a href="#">Cancel Booking</a></li>
+                            <li><a href="#">Track Bus</a></li>
+                            <li><a href="#">Route Schedule</a></li>
+                            <li><a href="#">Special Offers</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Support Section -->
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <div class="footer-section">
+                        <h5>Support</h5>
+                        <ul class="footer-links">
+                            <li><a href="#">Help Center</a></li>
+                            <li><a href="#">Contact Us</a></li>
+                            <li><a href="#">FAQs</a></li>
+                            <li><a href="#">Terms of Service</a></li>
+                            <li><a href="#">Privacy Policy</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Contact Section -->
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="footer-section">
+                        <h5>Contact Information</h5>
+                        <div class="contact-item">
+                            <i class="bi bi-telephone"></i>
+                            <span>+254 700 123 456</span>
+                        </div>
+                        <div class="contact-item">
+                            <i class="bi bi-envelope"></i>
+                            <span>info@dreamline.co.ke</span>
+                        </div>
+                        <div class="contact-item">
+                            <i class="bi bi-geo-alt"></i>
+                            <span>Nairobi, Kenya</span>
+                        </div>
+                        <div class="contact-item">
+                            <i class="bi bi-clock"></i>
+                            <span>24/7 Customer Support</span>
+                        </div>
                     </div>
                 </div>
             </div>
-            <hr class="my-4">
-            <div class="text-center">
-                <p>&copy; 2025 Dream Line. All rights reserved.</p>
+
+            <hr class="footer-divider">
+            
+            <div class="footer-bottom">
+                <div class="row align-items-center">
+                    <div class="col-md-6 text-center text-md-start">
+                        <p>&copy; 2025 Dream Line Bus Services. All rights reserved.</p>
+                    </div>
+                    <div class="col-md-6 text-center text-md-end">
+                        <p>Licensed by Kenya Bureau of Standards | Est. 2015</p>
+                    </div>
+                </div>
             </div>
         </div>
     </footer>
-
 
     <!-- jQuery -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
@@ -939,249 +1004,3 @@
 </body>
 </html>
 
-
-{% comment %} 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Dream Line Bus Booking{% endblock %}</title>
-    
-    <!-- Bootstrap CSS -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css" rel="stylesheet">
-    <!-- jQuery UI for autocomplete -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/themes/ui-lightness/jquery-ui.min.css" rel="stylesheet">
-    
-    <style>
-        body {
-            background-color: #f8f9fa;
-        }
-        
-        .navbar-brand {
-            font-weight: bold;
-            color: #007bff !important;
-        }
-        
-        .hero-section {
-            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
-            color: white;
-            padding: 60px 0;
-        }
-        
-        .search-card {
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        }
-        
-        .seat {
-            width: 40px;
-            height: 40px;
-            margin: 3px;
-            border-radius: 8px;
-            border: 2px solid #dee2e6;
-            background-color: #f8f9fa;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .seat.available {
-            background-color: #d4edda;
-            border-color: #28a745;
-            color: #155724;
-        }
-        
-        .seat.selected {
-            background-color: #007bff;
-            border-color: #0056b3;
-            color: white;
-        }
-        
-        .seat.booked {
-            background-color: #f8d7da;
-            border-color: #dc3545;
-            color: #721c24;
-            cursor: not-allowed;
-        }
-        
-        .seat.vip {
-            background-color: #fff3cd;
-            border-color: #ffc107;
-        }
-        
-        .bus-layout {
-            background-color: white;
-            border-radius: 20px;
-            padding: 20px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            max-width: 400px;
-            margin: 0 auto;
-        }
-        
-        .driver-area {
-            background-color: #6c757d;
-            height: 40px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-        }
-        
-        .seat-legend {
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-        
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-        }
-        
-        .legend-seat {
-            width: 20px;
-            height: 20px;
-            border-radius: 4px;
-            border: 1px solid #dee2e6;
-        }
-        
-        .trip-card {
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        
-        .trip-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-        }
-        
-        .countdown {
-            font-size: 18px;
-            font-weight: bold;
-            color: #dc3545;
-        }
-        
-        .loading {
-            display: none;
-        }
-        
-        .spinner-border {
-            width: 3rem;
-            height: 3rem;
-        }
-    </style>
-    
-    {% block extra_css %}{% endblock %}
-</head>
-<body>
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div class="container">
-            <a class="navbar-brand" href="/">
-                <i class="bi bi-bus-front"></i> Dream Line
-            </a>
-            
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">My Bookings</a>
-                    </li>
-                </ul>
-                
-                <ul class="navbar-nav">
-                    {% if user.is_authenticated %}
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                <i class="bi bi-person"></i> {{ user.username }}
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="#">Profile</a></li>
-                                <li><a class="dropdown-item" href="#">My Bookings</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="#">Logout</a></li>
-                            </ul>
-                        </li>
-                    {% else %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">Login</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">Register</a>
-                        </li>
-                    {% endif %}
-                </ul>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Main Content -->
-    <main>
-        {% block content %}{% endblock %}
-    </main>
-
-    <!-- Footer -->
-    <footer class="bg-dark text-light py-5 mt-5">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-4">
-                    <h5><i class="bi bi-bus-front"></i> Dream Line</h5>
-                    <p>Your trusted partner for comfortable and safe bus travel across Kenya.</p>
-                </div>
-                <div class="col-md-4">
-                    <h5>Quick Links</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="#" class="text-light">Book a Trip</a></li>
-                        <li><a href="#" class="text-light">Cancel Booking</a></li>
-                        <li><a href="#" class="text-light">Contact Us</a></li>
-                    </ul>
-                </div>
-                <div class="col-md-4">
-                    <h5>Contact Info</h5>
-                    <p><i class="bi bi-telephone"></i> +254 700 123 456</p>
-                    <p><i class="bi bi-envelope"></i> info@dreamline.co.ke</p>
-                    <div class="social-links">
-                        <a href="#" class="text-light me-2"><i class="bi bi-facebook"></i></a>
-                        <a href="#" class="text-light me-2"><i class="bi bi-twitter"></i></a>
-                        <a href="#" class="text-light"><i class="bi bi-instagram"></i></a>
-                    </div>
-                </div>
-            </div>
-            <hr class="my-4">
-            <div class="text-center">
-                <p>&copy; 2025 Dream Line. All rights reserved.</p>
-            </div>
-        </div>
-    </footer>
-
-    <!-- jQuery -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
-    <!-- jQuery UI -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js"></script>
-    <!-- Bootstrap JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-    
-    {% block extra_js %}{% endblock %}
-</body>
-</html> {% endcomment %}

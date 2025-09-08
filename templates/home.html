@@ -3,19 +3,252 @@
 {% block title %}Dream Line - Book Your Bus Travel{% endblock %}
 
 {% block content %}
+<style>
+    /* Professional enhancements */
+    .hero-section {
+        background: linear-gradient(135deg, var(--secondary-color) 0%, var(--accent-color) 100%);
+        color: white;
+        padding: 80px 0;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.1);
+        z-index: 1;
+    }
+    
+    .hero-section .container {
+        position: relative;
+        z-index: 2;
+    }
+    
+    .search-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border: none;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        border-radius: 16px;
+    }
+    
+    .search-card .card-title {
+        color: #333;
+        font-weight: 600;
+    }
+    
+    .form-control {
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        padding: 12px 16px;
+        font-size: 15px;
+        transition: all 0.3s ease;
+        background: #fafafa;
+    }
+    
+    .form-control:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.15);
+        background: white;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        border: none;
+        border-radius: 10px;
+        padding: 12px 24px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        box-shadow: 0 4px 15px rgba(0,123,255,0.3);
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0,123,255,0.4);
+    }
+    
+    .feature-card {
+        transition: all 0.3s ease;
+        border-radius: 16px;
+        overflow: hidden;
+        position: relative;
+    }
+    
+    .feature-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    }
+    
+    .feature-icon-wrapper {
+        position: relative;
+        transition: all 0.3s ease;
+    }
+    
+    .feature-card:hover .feature-icon-wrapper {
+        transform: scale(1.1);
+    }
+    
+    .route-card {
+        transition: all 0.3s ease;
+        border-radius: 12px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .route-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(135deg, #007bff, #28a745);
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+    }
+    
+    .route-card:hover::before {
+        transform: scaleX(1);
+    }
+    
+    .route-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+    }
+    
+    .section-title {
+        position: relative;
+        display: inline-block;
+        margin-bottom: 1rem;
+    }
+    
+    .section-title::after {
+        content: '';
+        position: absolute;
+        bottom: -8px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60px;
+        height: 3px;
+        background: linear-gradient(135deg, #007bff, #28a745);
+        border-radius: 2px;
+    }
+    
+    .price-badge {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-weight: 600;
+        display: inline-block;
+        margin-bottom: 10px;
+    }
+    
+    .journey-info {
+        background: #f8f9fa;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 500;
+        color: #666;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+    
+    .hero-stats {
+        background: rgba(255,255,255,0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 16px;
+        padding: 30px;
+        margin-top: 40px;
+    }
+    
+    .stat-item {
+        text-align: center;
+        padding: 20px 0;
+    }
+    
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #fff;
+        display: block;
+        line-height: 1;
+    }
+    
+    .stat-label {
+        color: rgba(255,255,255,0.8);
+        font-size: 14px;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-top: 8px;
+    }
+</style>
+
 <!-- Hero Section -->
 <section class="hero-section">
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-6">
-                <h1 class="display-4 fw-bold mb-3">Travel Comfortably Across Kenya</h1>
-                <p class="lead mb-4">Book your bus tickets online with ease. Choose your preferred seat and travel in comfort.</p>
+                <div data-aos="fade-right">
+                    <h1 class="display-4 fw-bold mb-4">Travel Comfortably Across Kenya</h1>
+                    <p class="lead mb-4 opacity-90">Experience premium bus travel with professional service, comfortable seating, and reliable schedules. Your journey matters to us.</p>
+                    
+                    <!-- Trust Indicators -->
+                    <div class="d-flex flex-wrap gap-4 mb-4">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-shield-check me-2" style="font-size: 1.2rem;"></i>
+                            <span>Verified & Secure</span>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-clock-history me-2" style="font-size: 1.2rem;"></i>
+                            <span>On-Time Guarantee</span>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-headset me-2" style="font-size: 1.2rem;"></i>
+                            <span>24/7 Support</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Stats Section -->
+                <div class="hero-stats" data-aos="fade-up" data-aos-delay="300">
+                    <div class="row g-0">
+                        <div class="col-4">
+                            <div class="stat-item">
+                                <span class="stat-number">50K+</span>
+                                <div class="stat-label">Happy Customers</div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="stat-item">
+                                <span class="stat-number">25+</span>
+                                <div class="stat-label">Routes Available</div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="stat-item">
+                                <span class="stat-number">99%</span>
+                                <div class="stat-label">On-Time Record</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
+            
             <div class="col-lg-6">
-                <div class="card search-card">
+                <div class="search-card" data-aos="fade-left" data-aos-delay="200">
                     <div class="card-body p-4">
                         <h3 class="card-title text-center mb-4">
-                            <i class="bi bi-search"></i> Search Trips
+                            <i class="bi bi-search text-primary me-2"></i> Find Your Perfect Journey
                         </h3>
                         
                         <form method="post" action="{% url 'search_trips' %}" id="search-form">
@@ -23,38 +256,48 @@
                             
                             <div class="row g-3">
                                 <div class="col-md-6">
-                                    <label for="id_origin" class="form-label">From</label>
+                                    <label for="id_origin" class="form-label fw-semibold">
+                                        <i class="bi bi-geo-alt text-primary me-1"></i>Departure From
+                                    </label>
                                     <div class="position-relative">
-                                        <i class="bi bi-geo-alt position-absolute" style="top: 50%; left: 10px; transform: translateY(-50%); z-index: 5;"></i>
-                                        <input type="text" class="form-control ps-4" id="origin-input" placeholder="Enter origin city" required>
+                                        <input type="text" class="form-control ps-4" id="origin-input" placeholder="Select departure city" required>
                                         <input type="hidden" name="origin" id="id_origin">
                                     </div>
                                 </div>
                                 
                                 <div class="col-md-6">
-                                    <label for="id_destination" class="form-label">To</label>
+                                    <label for="id_destination" class="form-label fw-semibold">
+                                        <i class="bi bi-geo-alt-fill text-success me-1"></i>Traveling To
+                                    </label>
                                     <div class="position-relative">
-                                        <i class="bi bi-geo-alt-fill position-absolute" style="top: 50%; left: 10px; transform: translateY(-50%); z-index: 5;"></i>
-                                        <input type="text" class="form-control ps-4" id="destination-input" placeholder="Enter destination city" required>
+                                        <input type="text" class="form-control ps-4" id="destination-input" placeholder="Select destination city" required>
                                         <input type="hidden" name="destination" id="id_destination">
                                     </div>
                                 </div>
                                 
                                 <div class="col-md-6">
-                                    <label for="id_travel_date" class="form-label">Travel Date</label>
+                                    <label for="id_travel_date" class="form-label fw-semibold">
+                                        <i class="bi bi-calendar-event text-info me-1"></i>Travel Date
+                                    </label>
                                     <div class="position-relative">
-                                        <i class="bi bi-calendar3 position-absolute" style="top: 50%; left: 10px; transform: translateY(-50%); z-index: 5;"></i>
                                         {{ search_form.travel_date }}
                                     </div>
                                 </div>
                                 
                                 <div class="col-md-6 d-flex align-items-end">
-                                    <button type="submit" class="btn btn-primary w-100 py-2">
-                                        <i class="bi bi-search"></i> Search Trips
+                                    <button type="submit" class="btn btn-primary w-100 py-3">
+                                        <i class="bi bi-search me-2"></i>Search Available Trips
                                     </button>
                                 </div>
                             </div>
                         </form>
+                        
+                        <div class="text-center mt-3">
+                            <small class="text-muted">
+                                <i class="bi bi-info-circle me-1"></i>
+                                Secure booking • Instant confirmation • Mobile tickets
+                            </small>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -63,46 +306,58 @@
 </section>
 
 <!-- Features Section -->
-<section class="py-5">
+<section class="py-5" style="background: #f8f9fa;">
     <div class="container">
-        <div class="text-center mb-5">
-            <h2 class="display-5 fw-bold">Why Choose Dream Line?</h2>
-            <p class="lead text-muted">Experience the best in bus travel with our premium services</p>
+        <div class="text-center mb-5" data-aos="fade-up">
+            <h2 class="display-5 fw-bold section-title">Why Choose Dream Line?</h2>
+            <p class="lead text-muted mt-4">Experience the difference with our commitment to excellence and customer satisfaction</p>
         </div>
         
         <div class="row g-4">
-            <div class="col-md-4">
-                <div class="card h-100 text-center border-0 shadow-sm">
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+                <div class="card h-100 text-center border-0 shadow-sm feature-card">
                     <div class="card-body p-4">
-                        <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                        <div class="feature-icon-wrapper bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
                             <i class="bi bi-shield-check text-primary" style="font-size: 2rem;"></i>
                         </div>
-                        <h4>Safe & Secure</h4>
-                        <p class="text-muted">Professional drivers and well-maintained buses ensure your safety throughout the journey.</p>
+                        <h4 class="fw-bold mb-3">Safe & Secure Journey</h4>
+                        <p class="text-muted mb-3">Professional drivers, GPS tracking, and regular vehicle maintenance ensure your safety is our top priority.</p>
+                        <div class="d-flex justify-content-center gap-3 text-sm">
+                            <span class="badge bg-light text-dark"><i class="bi bi-check-circle me-1"></i>Licensed Drivers</span>
+                            <span class="badge bg-light text-dark"><i class="bi bi-check-circle me-1"></i>GPS Tracking</span>
+                        </div>
                     </div>
                 </div>
             </div>
             
-            <div class="col-md-4">
-                <div class="card h-100 text-center border-0 shadow-sm">
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+                <div class="card h-100 text-center border-0 shadow-sm feature-card">
                     <div class="card-body p-4">
-                        <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                        <div class="feature-icon-wrapper bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
                             <i class="bi bi-phone text-success" style="font-size: 2rem;"></i>
                         </div>
-                        <h4>Easy Booking</h4>
-                        <p class="text-muted">Book your tickets online in minutes. Choose your preferred seat and pay securely via M-Pesa.</p>
+                        <h4 class="fw-bold mb-3">Seamless Digital Experience</h4>
+                        <p class="text-muted mb-3">Book tickets online in minutes, choose your seat, and pay securely via M-Pesa or card. Digital tickets on your phone.</p>
+                        <div class="d-flex justify-content-center gap-3 text-sm">
+                            <span class="badge bg-light text-dark"><i class="bi bi-check-circle me-1"></i>M-Pesa Payment</span>
+                            <span class="badge bg-light text-dark"><i class="bi bi-check-circle me-1"></i>Mobile Tickets</span>
+                        </div>
                     </div>
                 </div>
             </div>
             
-            <div class="col-md-4">
-                <div class="card h-100 text-center border-0 shadow-sm">
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
+                <div class="card h-100 text-center border-0 shadow-sm feature-card">
                     <div class="card-body p-4">
-                        <div class="bg-info bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                        <div class="feature-icon-wrapper bg-info bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
                             <i class="bi bi-clock text-info" style="font-size: 2rem;"></i>
                         </div>
-                        <h4>On Time</h4>
-                        <p class="text-muted">We value your time. Our buses run on schedule, ensuring you reach your destination on time.</p>
+                        <h4 class="fw-bold mb-3">Punctuality Promise</h4>
+                        <p class="text-muted mb-3">We respect your schedule. Our buses run on time with real-time updates and backup plans for any delays.</p>
+                        <div class="d-flex justify-content-center gap-3 text-sm">
+                            <span class="badge bg-light text-dark"><i class="bi bi-check-circle me-1"></i>On-Time Guarantee</span>
+                            <span class="badge bg-light text-dark"><i class="bi bi-check-circle me-1"></i>Live Updates</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -111,50 +366,74 @@
 </section>
 
 <!-- Popular Routes Section -->
-<section class="py-5 bg-light">
+<section class="py-5">
     <div class="container">
-        <div class="text-center mb-5">
-            <h2 class="display-6 fw-bold">Popular Routes</h2>
-            <p class="text-muted">Most traveled destinations with Dream Line</p>
+        <div class="text-center mb-5" data-aos="fade-up">
+            <h2 class="display-6 fw-bold section-title">Most Popular Routes</h2>
+            <p class="text-muted mt-3">Discover Kenya's most traveled destinations with comfort and reliability</p>
         </div>
         
         <div class="row g-4">
-            <div class="col-md-6 col-lg-3">
-                <div class="card border-0 shadow-sm">
+            <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="100">
+                <div class="card border-0 shadow-sm route-card">
                     <div class="card-body text-center p-4">
-                        <h5 class="card-title">Nairobi - Mombasa</h5>
-                        <p class="text-muted mb-3">From KSh 1,500</p>
-                        <small class="text-muted">8 hours journey</small>
+                        <div class="mb-3">
+                            <i class="bi bi-arrow-right-circle text-primary" style="font-size: 2rem;"></i>
+                        </div>
+                        <h5 class="card-title fw-bold">Nairobi → Mombasa</h5>
+                        <div class="price-badge mb-3">From KSh 1,500</div>
+                        <div class="journey-info">
+                            <i class="bi bi-clock"></i>
+                            8 hours journey
+                        </div>
                     </div>
                 </div>
             </div>
             
-            <div class="col-md-6 col-lg-3">
-                <div class="card border-0 shadow-sm">
+            <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="200">
+                <div class="card border-0 shadow-sm route-card">
                     <div class="card-body text-center p-4">
-                        <h5 class="card-title">Nairobi - Kisumu</h5>
-                        <p class="text-muted mb-3">From KSh 1,200</p>
-                        <small class="text-muted">6 hours journey</small>
+                        <div class="mb-3">
+                            <i class="bi bi-arrow-right-circle text-success" style="font-size: 2rem;"></i>
+                        </div>
+                        <h5 class="card-title fw-bold">Nairobi → Kisumu</h5>
+                        <div class="price-badge mb-3">From KSh 1,200</div>
+                        <div class="journey-info">
+                            <i class="bi bi-clock"></i>
+                            6 hours journey
+                        </div>
                     </div>
                 </div>
             </div>
             
-            <div class="col-md-6 col-lg-3">
-                <div class="card border-0 shadow-sm">
+            <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="300">
+                <div class="card border-0 shadow-sm route-card">
                     <div class="card-body text-center p-4">
-                        <h5 class="card-title">Nairobi - Eldoret</h5>
-                        <p class="text-muted mb-3">From KSh 1,000</p>
-                        <small class="text-muted">5 hours journey</small>
+                        <div class="mb-3">
+                            <i class="bi bi-arrow-right-circle text-info" style="font-size: 2rem;"></i>
+                        </div>
+                        <h5 class="card-title fw-bold">Nairobi → Eldoret</h5>
+                        <div class="price-badge mb-3">From KSh 1,000</div>
+                        <div class="journey-info">
+                            <i class="bi bi-clock"></i>
+                            5 hours journey
+                        </div>
                     </div>
                 </div>
             </div>
             
-            <div class="col-md-6 col-lg-3">
-                <div class="card border-0 shadow-sm">
+            <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="400">
+                <div class="card border-0 shadow-sm route-card">
                     <div class="card-body text-center p-4">
-                        <h5 class="card-title">Mombasa - Malindi</h5>
-                        <p class="text-muted mb-3">From KSh 800</p>
-                        <small class="text-muted">2 hours journey</small>
+                        <div class="mb-3">
+                            <i class="bi bi-arrow-right-circle text-warning" style="font-size: 2rem;"></i>
+                        </div>
+                        <h5 class="card-title fw-bold">Mombasa → Malindi</h5>
+                        <div class="price-badge mb-3">From KSh 800</div>
+                        <div class="journey-info">
+                            <i class="bi bi-clock"></i>
+                            2 hours journey
+                        </div>
                     </div>
                 </div>
             </div>
@@ -201,19 +480,40 @@ $(document).ready(function() {
     $('#id_travel_date').attr('min', today);
     $('#id_travel_date').val(today);
     
-    // Form validation
+    // Form validation with better UX
     $('#search-form').on('submit', function(e) {
         if (!$('#id_origin').val() || !$('#id_destination').val()) {
             e.preventDefault();
-            alert('Please select both origin and destination cities from the dropdown.');
+            // Better error handling
+            const alertHtml = `
+                <div class="alert alert-warning alert-dismissible fade show mt-3" role="alert">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    Please select both departure and destination cities from the dropdown suggestions.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>`;
+            $('.search-card .card-body').append(alertHtml);
             return false;
         }
         
         if ($('#id_origin').val() === $('#id_destination').val()) {
             e.preventDefault();
-            alert('Origin and destination cannot be the same.');
+            const alertHtml = `
+                <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+                    <i class="bi bi-x-circle me-2"></i>
+                    Departure and destination cities cannot be the same.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>`;
+            $('.search-card .card-body').append(alertHtml);
             return false;
         }
+        
+        // Show loading state
+        $(this).find('button[type="submit"]').html('<i class="spinner-border spinner-border-sm me-2"></i>Searching...');
+    });
+    
+    // Remove alerts when user starts typing
+    $('#origin-input, #destination-input').on('input', function() {
+        $('.alert').fadeOut();
     });
 });
 </script>
