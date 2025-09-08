@@ -2,182 +2,639 @@
 
 {% block title %}Search Results - {{ origin }} to {{ destination }}{% endblock %}
 
+{% block extra_css %}
+<style>
+    :root {
+        --primary-color: #0066cc;
+        --primary-dark: #004499;
+        --secondary-color: #f8f9fa;
+        --accent-color: #ff6b35;
+        --success-color: #28a745;
+        --warning-color: #ffc107;
+        --text-dark: #2c3e50;
+        --text-light: #6c757d;
+        --white: #ffffff;
+        --border-color: #dee2e6;
+        --shadow-light: rgba(0, 0, 0, 0.1);
+        --shadow-medium: rgba(0, 0, 0, 0.15);
+        --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    body {
+        background-color: #f5f6fa;
+    }
+
+    /* Journey Header */
+    .journey-header {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+        color: white;
+        padding: 1.5rem 0;
+        margin-bottom: 2rem;
+    }
+
+    .journey-section {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 12px;
+        padding: 1rem 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .journey-section:last-child {
+        margin-bottom: 0;
+    }
+
+    .journey-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        margin-bottom: 0.5rem;
+        opacity: 0.9;
+    }
+
+    .journey-details {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 0;
+    }
+
+    .modify-btn {
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-weight: 500;
+        text-decoration: none;
+        transition: var(--transition);
+    }
+
+    .modify-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+        color: white;
+        transform: translateY(-1px);
+    }
+
+    /* Filters and Sort */
+    .controls-section {
+        background: white;
+        border-radius: 12px;
+        padding: 1rem 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 2px 10px var(--shadow-light);
+        border: 1px solid var(--border-color);
+    }
+
+    .filter-btn, .sort-dropdown {
+        background: var(--secondary-color);
+        border: 1px solid var(--border-color);
+        color: var(--text-dark);
+        padding: 0.6rem 1.2rem;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: var(--transition);
+    }
+
+    .filter-btn:hover, .sort-dropdown:hover {
+        background: var(--primary-color);
+        color: white;
+        border-color: var(--primary-color);
+    }
+
+    .notice-bar {
+        background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+        border: 1px solid #ffeaa7;
+        border-radius: 10px;
+        padding: 1rem 1.5rem;
+        margin-bottom: 1.5rem;
+        color: #856404;
+        font-weight: 500;
+        text-align: center;
+    }
+
+    /* Trip List Container */
+    .trips-container {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px var(--shadow-light);
+        border: 1px solid var(--border-color);
+    }
+
+    /* Trip Row */
+    .trip-row {
+        display: grid;
+        grid-template-columns: auto 1fr auto auto auto auto;
+        align-items: center;
+        padding: 1.5rem;
+        border-bottom: 1px solid var(--border-color);
+        transition: var(--transition);
+        gap: 1.5rem;
+    }
+
+    .trip-row:last-child {
+        border-bottom: none;
+    }
+
+    .trip-row:hover {
+        background: var(--secondary-color);
+        transform: translateX(5px);
+    }
+
+    /* Bus Icon */
+    .bus-icon {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0, 102, 204, 0.3);
+    }
+
+    /* Route Info */
+    .route-info {
+        min-width: 0;
+    }
+
+    .route-code {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        margin-bottom: 0.3rem;
+    }
+
+    .bus-details {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        flex-wrap: wrap;
+    }
+
+    .seater-info {
+        color: var(--text-light);
+        font-size: 0.9rem;
+    }
+
+    .amenity-icon {
+        width: 24px;
+        height: 24px;
+        background: rgba(40, 167, 69, 0.1);
+        border-radius: 6px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--success-color);
+        font-size: 0.8rem;
+    }
+
+    .amenities-count {
+        background: var(--primary-color);
+        color: white;
+        padding: 0.2rem 0.6rem;
+        border-radius: 15px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    /* Time Column */
+    .time-column {
+        text-align: center;
+        min-width: 100px;
+    }
+
+    .departure-time {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        margin-bottom: 0.2rem;
+    }
+
+    .time-label {
+        font-size: 0.8rem;
+        color: var(--text-light);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    /* Rating Column */
+    .rating-column {
+        text-align: center;
+        min-width: 100px;
+    }
+
+    .rating-stars {
+        display: flex;
+        justify-content: center;
+        gap: 2px;
+        margin-bottom: 0.2rem;
+    }
+
+    .star {
+        color: #ffc107;
+        font-size: 0.9rem;
+    }
+
+    .star.empty {
+        color: #e9ecef;
+    }
+
+    /* Availability Column */
+    .availability-column {
+        text-align: center;
+        min-width: 120px;
+    }
+
+    .seats-available {
+        font-weight: 700;
+        margin-bottom: 0.3rem;
+    }
+
+    .seats-available.high {
+        color: var(--success-color);
+    }
+
+    .seats-available.medium {
+        color: var(--warning-color);
+    }
+
+    .seats-available.low {
+        color: var(--accent-color);
+    }
+
+    .view-seats-btn {
+        background: linear-gradient(135deg, var(--accent-color) 0%, #e55a2b 100%);
+        color: white;
+        border: none;
+        padding: 0.6rem 1.2rem;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: var(--transition);
+        box-shadow: 0 3px 12px rgba(255, 107, 53, 0.3);
+    }
+
+    .view-seats-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(255, 107, 53, 0.4);
+    }
+
+    /* Price Column */
+    .price-column {
+        text-align: center;
+        min-width: 120px;
+    }
+
+    .price-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+    }
+
+    .price-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.9rem;
+    }
+
+    .price-label {
+        color: var(--text-light);
+        font-weight: 500;
+    }
+
+    .price-amount {
+        font-weight: 700;
+        color: var(--text-dark);
+    }
+
+    .price-amount.vip {
+        color: var(--accent-color);
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 992px) {
+        .journey-header {
+            padding: 1rem 0;
+        }
+
+        .journey-section {
+            padding: 0.8rem 1rem;
+        }
+
+        .trip-row {
+            grid-template-columns: auto 1fr;
+            gap: 1rem;
+        }
+
+        .time-column,
+        .rating-column,
+        .availability-column,
+        .price-column {
+            display: none;
+        }
+
+        .mobile-info {
+            display: block !important;
+            margin-top: 1rem;
+        }
+
+        .mobile-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.8rem;
+        }
+
+        .mobile-row:last-child {
+            margin-bottom: 0;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .controls-section {
+            padding: 1rem;
+        }
+
+        .trip-row {
+            padding: 1rem;
+        }
+
+        .bus-icon {
+            width: 50px;
+            height: 50px;
+            font-size: 1.2rem;
+        }
+
+        .route-code {
+            font-size: 1rem;
+        }
+
+        .mobile-info {
+            background: var(--secondary-color);
+            padding: 1rem;
+            border-radius: 10px;
+            margin-top: 1rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .journey-header {
+            margin: 0 -15px 2rem;
+        }
+
+        .journey-section {
+            margin-bottom: 0.8rem;
+        }
+
+        .controls-section,
+        .trips-container {
+            margin: 0 -15px 1.5rem;
+            border-radius: 0;
+        }
+
+        .notice-bar {
+            margin: 0 -15px 1.5rem;
+            border-radius: 0;
+        }
+    }
+
+    /* Desktop-only elements */
+    .mobile-info {
+        display: none;
+    }
+
+    /* Loading states */
+    .loading {
+        opacity: 0.6;
+        pointer-events: none;
+    }
+
+    /* No trips found */
+    .no-trips {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: var(--text-light);
+    }
+
+    .no-trips-icon {
+        font-size: 4rem;
+        margin-bottom: 1.5rem;
+        opacity: 0.5;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container my-5">
-    <div class="row">
-        <div class="col-12">
-            <!-- Search Summary -->
-            <div class="card mb-4">
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <div class="col-md-8">
-                            <h4 class="mb-0">
-                                <i class="bi bi-bus-front text-primary"></i>
-                                {{ origin }} <i class="bi bi-arrow-right mx-2"></i> {{ destination }}
-                            </h4>
-                            <p class="text-muted mb-0">
-                                <i class="bi bi-calendar3"></i> {{ travel_date|date:"F j, Y" }} • 
-                                {{ trips|length }} trip{{ trips|length|pluralize }} found
-                            </p>
+<div class="container-fluid px-3">
+    <!-- Journey Header -->
+    <div class="journey-header">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="journey-section">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <div class="journey-title">Onward Journey</div>
+                                <div class="journey-details">
+                                    {{ origin }} → {{ destination }}
+                                    <small class="d-block opacity-75">{{ travel_date|date:"d M Y" }}</small>
+                                </div>
+                            </div>
+                            <a href="/" class="modify-btn">Modify</a>
                         </div>
-                        <div class="col-md-4 text-md-end">
-                            <a href="/" class="btn btn-outline-primary">
-                                <i class="bi bi-arrow-left"></i> New Search
-                            </a>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="journey-section">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <div class="journey-title">Return Journey</div>
+                                <div class="journey-details">
+                                    {{ destination }} → {{ origin }}
+                                    <small class="d-block opacity-75">Invalid date</small>
+                                </div>
+                            </div>
+                            <a href="#" class="modify-btn">Modify</a>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
 
-            {% if trips %}
-                <!-- Trips List -->
-                <div class="row g-4">
-                    {% for trip in trips %}
-                    <div class="col-12">
-                        <div class="card trip-card">
-                            <div class="card-body p-4">
-                                <div class="row align-items-center">
-                                    <!-- Company Info -->
-                                    <div class="col-md-2">
-                                        <div class="text-center">
-                                            {% if trip.bus.company.logo %}
-                                                <img src="{{ trip.bus.company.logo.url }}" alt="{{ trip.bus.company.name }}" class="img-fluid mb-2" style="max-height: 50px;">
-                                            {% else %}
-                                                <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 50px; height: 50px;">
-                                                    <i class="bi bi-bus-front text-primary"></i>
-                                                </div>
-                                            {% endif %}
-                                            <h6 class="mb-0">{{ trip.bus.company.name }}</h6>
-                                            <small class="text-muted">{{ trip.bus.bus_type }}</small>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Trip Details -->
-                                    <div class="col-md-6">
-                                        <div class="row">
-                                            <div class="col-6">
-                                                <h5 class="mb-1">{{ trip.departure_time|time:"H:i" }}</h5>
-                                                <p class="mb-0 text-muted">{{ trip.route.origin.name }}</p>
-                                                <small class="text-muted">{{ trip.departure_time|date:"M j" }}</small>
-                                            </div>
-                                            <div class="col-6">
-                                                <h5 class="mb-1">{{ trip.arrival_time|time:"H:i" }}</h5>
-                                                <p class="mb-0 text-muted">{{ trip.route.destination.name }}</p>
-                                                <small class="text-muted">{{ trip.arrival_time|date:"M j" }}</small>
-                                            </div>
-                                        </div>
-                                        
-                                        <!-- Journey Duration -->
-                                        <div class="mt-3">
-                                            <div class="d-flex align-items-center">
-                                                <div class="flex-grow-1">
-                                                    <div class="progress" style="height: 4px;">
-                                                        <div class="progress-bar" role="progressbar" style="width: 100%;"></div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <small class="text-muted">
-                                                <i class="bi bi-clock"></i> 
-                                                Duration: {{ trip.route.estimated_duration }}
-                                            </small>
-                                        </div>
-                                        
-                                        <!-- Intermediate Stops -->
-                                        {% if trip.route.stops.exists %}
-                                        <div class="mt-2">
-                                            <small class="text-muted">
-                                                <i class="bi bi-geo-alt"></i> Stops: 
-                                                {% for stop in trip.route.stops.all|slice:":3" %}
-                                                    {{ stop.location.name }}{% if not forloop.last %}, {% endif %}
-                                                {% endfor %}
-                                                {% if trip.route.stops.count > 3 %}
-                                                    <span class="badge bg-light text-dark ms-1">+{{ trip.route.stops.count|add:"-3" }} more</span>
-                                                {% endif %}
-                                            </small>
-                                        </div>
+    <div class="container">
+        <!-- Controls -->
+        <div class="controls-section">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <button class="filter-btn">
+                    <i class="bi bi-funnel me-2"></i>View Filters
+                </button>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="text-muted">Sort By:</span>
+                    <select class="sort-dropdown">
+                        <option>Not Set</option>
+                        <option>Price: Low to High</option>
+                        <option>Price: High to Low</option>
+                        <option>Departure Time</option>
+                        <option>Rating</option>
+                        <option>Availability</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notice -->
+        <div class="notice-bar">
+            <i class="bi bi-info-circle me-2"></i>
+            Please note: Highlighted buses are coming from other towns and might delay to depart.
+        </div>
+
+        {% if trips %}
+            <!-- Trips Container -->
+            <div class="trips-container">
+                {% for trip in trips %}
+                <div class="trip-row">
+                    <!-- Bus Icon -->
+                    <div class="bus-icon">
+                        <i class="bi bi-bus-front"></i>
+                    </div>
+
+                    <!-- Route Info -->
+                    <div class="route-info">
+                        <div class="route-code">{{ trip.route.origin.code }}-{{ trip.route.destination.code }}</div>
+                        <div class="bus-details">
+                            <span class="seater-info">{{ trip.bus.total_seats }} Seater</span>
+                            
+                            {% if trip.bus.bus_type == 'VIP' %}
+                                <div class="amenity-icon" title="WiFi"><i class="bi bi-wifi"></i></div>
+                                <div class="amenity-icon" title="AC"><i class="bi bi-snow"></i></div>
+                                <div class="amenity-icon" title="TV"><i class="bi bi-tv"></i></div>
+                                <span class="amenities-count">+3 Amenities</span>
+                            {% elif trip.bus.bus_type == 'BUSINESS' %}
+                                <div class="amenity-icon" title="WiFi"><i class="bi bi-wifi"></i></div>
+                                <div class="amenity-icon" title="AC"><i class="bi bi-snow"></i></div>
+                                <span class="amenities-count">+1 Amenities</span>
+                            {% endif %}
+                        </div>
+
+                        <!-- Mobile Info (Hidden on Desktop) -->
+                        <div class="mobile-info">
+                            <div class="mobile-row">
+                                <span class="price-label">Departure:</span>
+                                <span class="departure-time">{{ trip.departure_time|time:"g:i A" }}</span>
+                            </div>
+                            <div class="mobile-row">
+                                <span class="price-label">Rating:</span>
+                                <div class="rating-stars">
+                                    {% for i in "12345" %}
+                                        {% if forloop.counter <= 3 %}
+                                            <i class="bi bi-star-fill star"></i>
+                                        {% else %}
+                                            <i class="bi bi-star star empty"></i>
                                         {% endif %}
-                                    </div>
-                                    
-                                    <!-- Pricing & Action -->
-                                    <div class="col-md-4 text-md-end">
-                                        <div class="mb-3">
-                                            <h4 class="text-primary mb-0">From KSh {{ trip.base_price|floatformat:0 }}</h4>
-                                            <small class="text-muted">per seat</small>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="mobile-row">
+                                <span class="price-label">Available:</span>
+                                <span class="seats-available high">{{ trip.bus.total_seats }} Seats Available</span>
+                            </div>
+                            <div class="mobile-row">
+                                <div class="price-info">
+                                    {% if trip.bus.bus_type == 'VIP' %}
+                                        <div class="price-item">
+                                            <span class="price-label">VIP:</span>
+                                            <span class="price-amount vip">KES {{ trip.base_price|add:400|floatformat:0 }}</span>
                                         </div>
-                                        
-                                        <!-- Available Seats -->
-                                        <div class="mb-3">
-                                            {% with available_seats=trip.bus.total_seats %}
-                                            <span class="badge bg-success-subtle text-success">
-                                                <i class="bi bi-check-circle"></i> {{ available_seats }} seats available
-                                            </span>
-                                            {% endwith %}
+                                        <div class="price-item">
+                                            <span class="price-label">Business:</span>
+                                            <span class="price-amount">KES {{ trip.base_price|add:200|floatformat:0 }}</span>
                                         </div>
-                                        
-                                        <!-- Amenities -->
-                                        <div class="mb-3">
-                                            <small class="text-muted d-block">
-                                                {% if trip.bus.bus_type == 'VIP' %}
-                                                    <i class="bi bi-wifi text-success"></i>
-                                                    <i class="bi bi-cup-hot text-success"></i>
-                                                    <i class="bi bi-tv text-success"></i>
-                                                {% elif trip.bus.bus_type == 'BUSINESS' %}
-                                                    <i class="bi bi-wifi text-success"></i>
-                                                    <i class="bi bi-tv text-success"></i>
-                                                {% endif %}
-                                                <i class="bi bi-shield-check text-success"></i>
-                                            </small>
+                                    {% elif trip.bus.bus_type == 'BUSINESS' %}
+                                        <div class="price-item">
+                                            <span class="price-label">Business:</span>
+                                            <span class="price-amount">KES {{ trip.base_price|add:200|floatformat:0 }}</span>
                                         </div>
-                                        
-                                        <a href="{% url 'trip_seats' trip.id %}" class="btn btn-primary">
-                                            <i class="bi bi-car-front"></i> Select Seats
-                                        </a>
+                                    {% endif %}
+                                    <div class="price-item">
+                                        <span class="price-label">Normal:</span>
+                                        <span class="price-amount">KES {{ trip.base_price|floatformat:0 }}</span>
                                     </div>
                                 </div>
+                                <button class="view-seats-btn" onclick="selectTrip('{{ trip.id }}')">View Seats</button>
                             </div>
                         </div>
                     </div>
-                    {% endfor %}
-                </div>
-                
-                <!-- Pagination (if needed) -->
-                <div class="row mt-4">
-                    <div class="col-12 text-center">
-                        <p class="text-muted">Showing all available trips for {{ travel_date|date:"F j, Y" }}</p>
+
+                    <!-- Desktop Columns -->
+                    <div class="time-column">
+                        <div class="departure-time">{{ trip.departure_time|time:"g:i A" }}</div>
+                        <div class="time-label">Departure Time</div>
                     </div>
-                </div>
-                
-            {% else %}
-                <!-- No Trips Found -->
-                <div class="text-center py-5">
-                    <div class="mb-4">
-                        <i class="bi bi-bus-front text-muted" style="font-size: 4rem;"></i>
+
+                    <div class="rating-column">
+                        <div class="rating-stars">
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= 3 %}
+                                    <i class="bi bi-star-fill star"></i>
+                                {% else %}
+                                    <i class="bi bi-star star empty"></i>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        <div class="time-label">Rating</div>
                     </div>
-                    <h3 class="text-muted mb-3">No trips found</h3>
-                    <p class="text-muted mb-4">
-                        Sorry, we couldn't find any trips from {{ origin }} to {{ destination }} on {{ travel_date|date:"F j, Y" }}.
-                    </p>
-                    
-                    <!-- Suggestions -->
-                    <div class="card bg-light border-0 d-inline-block">
-                        <div class="card-body">
-                            <h6 class="card-title">Try these suggestions:</h6>
-                            <ul class="list-unstyled mb-0">
-                                <li><i class="bi bi-check text-success"></i> Check if the route is available</li>
-                                <li><i class="bi bi-check text-success"></i> Try a different date</li>
-                                <li><i class="bi bi-check text-success"></i> Look for nearby pickup locations</li>
-                            </ul>
+
+                    <div class="availability-column">
+                        <div class="seats-available high">{{ trip.bus.total_seats }} Seats Available</div>
+                        <button class="view-seats-btn" onclick="selectTrip('{{ trip.id }}')">View Seats</button>
+                    </div>
+
+                    <div class="price-column">
+                        <div class="price-info">
+                            {% if trip.bus.bus_type == 'VIP' %}
+                                <div class="price-item">
+                                    <span class="price-label">VIP:</span>
+                                    <span class="price-amount vip">KES {{ trip.base_price|add:400|floatformat:0 }}</span>
+                                </div>
+                                <div class="price-item">
+                                    <span class="price-label">Business:</span>
+                                    <span class="price-amount">KES {{ trip.base_price|add:200|floatformat:0 }}</span>
+                                </div>
+                            {% elif trip.bus.bus_type == 'BUSINESS' %}
+                                <div class="price-item">
+                                    <span class="price-label">Business:</span>
+                                    <span class="price-amount">KES {{ trip.base_price|add:200|floatformat:0 }}</span>
+                                </div>
+                            {% endif %}
+                            <div class="price-item">
+                                <span class="price-label">Normal:</span>
+                                <span class="price-amount">KES {{ trip.base_price|floatformat:0 }}</span>
+                            </div>
                         </div>
                     </div>
-                    
-                    <div class="mt-4">
-                        <a href="/" class="btn btn-primary">
-                            <i class="bi bi-arrow-left"></i> Search Again
-                        </a>
-                    </div>
                 </div>
-            {% endif %}
-        </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="trips-container">
+                <div class="no-trips">
+                    <div class="no-trips-icon">
+                        <i class="bi bi-bus-front"></i>
+                    </div>
+                    <h3>No trips found</h3>
+                    <p>Sorry, no buses available for the selected route and date.</p>
+                    <a href="/" class="btn btn-primary mt-3">
+                        <i class="bi bi-search me-2"></i>Search Again
+                    </a>
+                </div>
+            </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}
@@ -185,18 +642,67 @@
 {% block extra_js %}
 <script>
 $(document).ready(function() {
-    // Add hover effects to trip cards
-    $('.trip-card').hover(
+    // Enhanced trip row interactions
+    $('.trip-row').hover(
         function() {
-            $(this).addClass('shadow-lg');
+            $(this).find('.bus-icon').css('transform', 'scale(1.1)');
         },
         function() {
-            $(this).removeClass('shadow-lg');
+            $(this).find('.bus-icon').css('transform', 'scale(1)');
         }
     );
-    
-    // Update available seats count (you can make AJAX calls here)
-    // This is a placeholder for real-time seat availability updates
+
+    // Sort functionality
+    $('.sort-dropdown').on('change', function() {
+        const sortBy = $(this).val();
+        // Add your sorting logic here
+        console.log('Sorting by:', sortBy);
+    });
+
+    // Filter functionality
+    $('.filter-btn').on('click', function() {
+        // Add filter panel toggle logic here
+        $(this).toggleClass('active');
+    });
+
+    // Seat availability color coding
+    $('.seats-available').each(function() {
+        const seats = parseInt($(this).text());
+        $(this).removeClass('high medium low');
+        
+        if (seats > 30) {
+            $(this).addClass('high');
+        } else if (seats > 10) {
+            $(this).addClass('medium');
+        } else {
+            $(this).addClass('low');
+        }
+    });
+
+    // Mobile responsive adjustments
+    function adjustForMobile() {
+        if ($(window).width() <= 992) {
+            $('.mobile-info').show();
+        } else {
+            $('.mobile-info').hide();
+        }
+    }
+
+    adjustForMobile();
+    $(window).resize(adjustForMobile);
 });
+
+// Trip selection function
+function selectTrip(tripId) {
+    const $btn = $(event.target);
+    const originalText = $btn.html();
+    
+    $btn.html('<i class="bi bi-arrow-clockwise"></i> Loading...').prop('disabled', true);
+    
+    // Simulate loading and redirect
+    setTimeout(() => {
+        window.location.href = `/trip/${tripId}/seats/`;
+    }, 1000);
+}
 </script>
 {% endblock %}
