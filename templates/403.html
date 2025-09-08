@@ -1,0 +1,442 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Access Forbidden - DreamLine Bus Service{% endblock %}
+
+{% block extra_css %}
+<style>
+    .error-container {
+        min-height: 70vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 0;
+    }
+    
+    .error-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        padding: 3rem;
+        text-align: center;
+        max-width: 600px;
+        width: 100%;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .error-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(135deg, #fd7e14 0%, #e55a4f 100%);
+    }
+    
+    .error-icon {
+        font-size: 6rem;
+        color: #fd7e14;
+        margin-bottom: 1.5rem;
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.05); opacity: 0.8; }
+    }
+    
+    .error-code {
+        font-size: 5rem;
+        font-weight: 900;
+        color: #fd7e14;
+        margin-bottom: 0.5rem;
+        line-height: 1;
+        text-shadow: 2px 2px 4px rgba(253, 126, 20, 0.2);
+    }
+    
+    .error-title {
+        font-size: 2rem;
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 1rem;
+    }
+    
+    .error-message {
+        font-size: 1.1rem;
+        color: #6c757d;
+        margin-bottom: 2rem;
+        line-height: 1.6;
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-bottom: 2rem;
+    }
+    
+    .btn-login {
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        border: none;
+        border-radius: 50px;
+        padding: 0.8rem 2rem;
+        color: white;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .btn-login:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 123, 255, 0.3);
+        color: white;
+        text-decoration: none;
+    }
+    
+    .btn-home {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        border: none;
+        border-radius: 50px;
+        padding: 0.8rem 2rem;
+        color: white;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .btn-home:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3);
+        color: white;
+        text-decoration: none;
+    }
+    
+    .access-info {
+        background: #fff3cd;
+        border: 1px solid #ffeaa7;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin: 2rem 0;
+    }
+    
+    .access-info h5 {
+        color: #856404;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        justify-content: center;
+    }
+    
+    .access-reasons {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        text-align: left;
+    }
+    
+    .access-reasons li {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+        padding: 0.5rem;
+        border-radius: 5px;
+        color: #856404;
+    }
+    
+    .reason-icon {
+        color: #fd7e14;
+        font-size: 1.1rem;
+        margin-top: 0.1rem;
+        flex-shrink: 0;
+    }
+    
+    .reason-text {
+        flex: 1;
+        line-height: 1.5;
+    }
+    
+    .permission-levels {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-top: 2rem;
+    }
+    
+    .permission-levels h5 {
+        color: #495057;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        justify-content: center;
+    }
+    
+    .permission-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+    }
+    
+    .permission-item {
+        background: white;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        padding: 1rem;
+        text-align: left;
+        transition: all 0.3s ease;
+    }
+    
+    .permission-item:hover {
+        border-color: #007bff;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    
+    .permission-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+        color: #495057;
+        font-weight: 600;
+    }
+    
+    .permission-desc {
+        font-size: 0.9rem;
+        color: #6c757d;
+        line-height: 1.4;
+    }
+    
+    .contact-admin {
+        background: #e7f3ff;
+        border: 1px solid #b8daff;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-top: 2rem;
+    }
+    
+    .contact-admin h6 {
+        color: #004085;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        justify-content: center;
+    }
+    
+    .admin-contacts {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        flex-wrap: wrap;
+        margin-top: 1rem;
+    }
+    
+    .admin-contact {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #004085;
+        font-weight: 500;
+        text-decoration: none;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        background: white;
+        border: 1px solid #b8daff;
+        transition: all 0.3s ease;
+    }
+    
+    .admin-contact:hover {
+        background: #004085;
+        color: white;
+        text-decoration: none;
+        transform: translateY(-1px);
+    }
+    
+    @media (max-width: 768px) {
+        .error-card {
+            margin: 1rem;
+            padding: 2rem;
+        }
+        
+        .error-code {
+            font-size: 4rem;
+        }
+        
+        .error-title {
+            font-size: 1.5rem;
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .btn-login, .btn-home {
+            width: 100%;
+            max-width: 300px;
+            justify-content: center;
+        }
+        
+        .admin-contacts {
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="error-container">
+    <div class="error-card">
+        <i class="bi bi-shield-x error-icon"></i>
+        <div class="error-code">403</div>
+        <h1 class="error-title">Access Forbidden</h1>
+        <p class="error-message">
+            You don't have permission to access this page. 
+            This area is restricted to authorized personnel only.
+        </p>
+        
+        <div class="action-buttons">
+            {% if not user.is_authenticated %}
+                <a href="{% url 'login' %}" class="btn btn-login">
+                    <i class="bi bi-box-arrow-in-right"></i>
+                    Login
+                </a>
+            {% endif %}
+            <a href="{% url 'home' %}" class="btn btn-home">
+                <i class="bi bi-house-door"></i>
+                Go Home
+            </a>
+        </div>
+        
+        <div class="access-info">
+            <h5>
+                <i class="bi bi-info-circle"></i>
+                Why am I seeing this?
+            </h5>
+            <ul class="access-reasons">
+                <li>
+                    <i class="bi bi-person-x reason-icon"></i>
+                    <span class="reason-text">
+                        <strong>Not logged in:</strong> This page requires authentication. Please log in with your account.
+                    </span>
+                </li>
+                <li>
+                    <i class="bi bi-key reason-icon"></i>
+                    <span class="reason-text">
+                        <strong>Insufficient permissions:</strong> Your account doesn't have the required access level for this resource.
+                    </span>
+                </li>
+                <li>
+                    <i class="bi bi-clock-history reason-icon"></i>
+                    <span class="reason-text">
+                        <strong>Session expired:</strong> Your login session may have expired. Try logging in again.
+                    </span>
+                </li>
+                <li>
+                    <i class="bi bi-link-45deg reason-icon"></i>
+                    <span class="reason-text">
+                        <strong>Direct access:</strong> You may have accessed this page directly without proper authorization.
+                    </span>
+                </li>
+            </ul>
+        </div>
+        
+        <div class="permission-levels">
+            <h5>
+                <i class="bi bi-diagram-3"></i>
+                Access Levels
+            </h5>
+            <div class="permission-grid">
+                <div class="permission-item">
+                    <div class="permission-header">
+                        <i class="bi bi-person"></i>
+                        <span>Customer</span>
+                    </div>
+                    <div class="permission-desc">
+                        Search trips, make bookings, view booking history, manage profile
+                    </div>
+                </div>
+                
+                <div class="permission-item">
+                    <div class="permission-header">
+                        <i class="bi bi-person-badge"></i>
+                        <span>Driver</span>
+                    </div>
+                    <div class="permission-desc">
+                        View assigned trips, update trip status, passenger manifest
+                    </div>
+                </div>
+                
+                <div class="permission-item">
+                    <div class="permission-header">
+                        <i class="bi bi-building"></i>
+                        <span>Company Admin</span>
+                    </div>
+                    <div class="permission-desc">
+                        Manage company buses, routes, trips, bookings, and reports
+                    </div>
+                </div>
+                
+                <div class="permission-item">
+                    <div class="permission-header">
+                        <i class="bi bi-shield-check"></i>
+                        <span>System Admin</span>
+                    </div>
+                    <div class="permission-desc">
+                        Full system access, user management, system configuration
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="contact-admin">
+            <h6>
+                <i class="bi bi-person-lines-fill"></i>
+                Need Access?
+            </h6>
+            <p style="color: #004085; text-align: center; margin-bottom: 1rem;">
+                Contact our administrator to request access or report an issue
+            </p>
+            <div class="admin-contacts">
+                <a href="mailto:admin@dreamlinebus.com" class="admin-contact">
+                    <i class="bi bi-envelope"></i>
+                    admin@dreamlinebus.com
+                </a>
+                <a href="tel:+254700123456" class="admin-contact">
+                    <i class="bi bi-telephone"></i>
+                    +254 700 123456
+                </a>
+                <a href="#" class="admin-contact" onclick="openSupportChat()">
+                    <i class="bi bi-chat-dots"></i>
+                    Live Chat
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function openSupportChat() {
+    // Placeholder for live chat functionality
+    alert('Live chat feature coming soon! Please use email or phone for now.');
+}
+</script>
+{% endblock %}

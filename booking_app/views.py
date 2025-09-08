@@ -353,6 +353,19 @@ def process_payment(request):
     return JsonResponse({'success': False, 'error': 'Invalid request method'})
 
 
+def payment_failed(request):
+    """
+    Custom view for payment failures
+    """
+    context = {
+        'error_type': 'payment_failed',
+        'title': 'Payment Failed',
+        'message': 'Your payment could not be processed. Please try again.',
+    }
+    
+    response = render(request, '500.html', context)
+    response.status_code = 500
+    return response
 
 def generate_booking_pdf(request, booking):
     """Generate PDF for booking"""
@@ -1042,3 +1055,120 @@ def download_booking_pdf_reportlab(request, booking_id):
     response.write(pdf)
     
     return response
+
+
+
+from django.shortcuts import render
+from django.http import HttpResponseNotFound, HttpResponseServerError, HttpResponseForbidden
+from django.template import RequestContext
+from django.views.decorators.csrf import requires_csrf_token
+import logging
+
+logger = logging.getLogger(__name__)
+
+@requires_csrf_token
+def custom_404(request, exception=None):
+    """
+    Custom 404 error page
+    """
+    # Log the 404 error for monitoring
+    logger.warning(f"404 Error: {request.path} - User: {request.user if request.user.is_authenticated else 'Anonymous'} - IP: {get_client_ip(request)}")
+    
+    context = {
+        'request_path': request.path,
+        'user': request.user,
+    }
+    
+    response = render(request, '404.html', context)
+    response.status_code = 404
+    return response
+
+@requires_csrf_token
+def custom_500(request):
+    """
+    Custom 500 error page
+    """
+    # Log the 500 error for monitoring
+    logger.error(f"500 Error: {request.path} - User: {request.user if hasattr(request, 'user') and request.user.is_authenticated else 'Anonymous'} - IP: {get_client_ip(request) if hasattr(request, 'META') else 'Unknown'}")
+    
+    context = {
+        'request_path': getattr(request, 'path', '/'),
+        'user': getattr(request, 'user', None),
+    }
+    
+    try:
+        response = render(request, '500.html', context)
+        response.status_code = 500
+        return response
+    except Exception as e:
+        # Fallback if even the error template fails
+        logger.critical(f"Error template failed to render: {str(e)}")
+        return HttpResponseServerError(
+            '<h1>Internal Server Error</h1>'
+            '<p>The server encountered an internal error and was unable to complete your request.</p>'
+            '<p>Please try again later or contact support at support@dreamlinebus.com</p>'
+        )
+
+@requires_csrf_token
+def custom_403(request, exception=None):
+    """
+    Custom 403 error page
+    """
+    # Log the 403 error for monitoring
+    logger.warning(f"403 Error: {request.path} - User: {request.user if request.user.is_authenticated else 'Anonymous'} - IP: {get_client_ip(request)}")
+    
+    context = {
+        'request_path': request.path,
+        'user': request.user,
+        'exception': exception,
+    }
+    
+    response = render(request, '403.html', context)
+    response.status_code = 403
+    return response
+
+def get_client_ip(request):
+    """
+    Get the real IP address of the client
+    """
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
+
+
+
+def booking_not_found(request, booking_id):
+    """
+    Custom view for when a booking is not found
+    """
+    context = {
+        'booking_id': booking_id,
+        'error_type': 'booking_not_found',
+        'title': 'Booking Not Found',
+        'message': f'The booking with ID "{booking_id}" could not be found.',
+    }
+    
+    response = render(request, '404.html', context)
+    response.status_code = 404
+    return response
+
+
+def trip_not_available(request):
+    """
+    Custom view for when a trip is no longer available
+    """
+    context = {
+        'error_type': 'trip_not_available',
+        'title': 'Trip Not Available',
+        'message': 'This trip is no longer available for booking.',
+    }
+    
+    response = render(request, '404.html', context)
+    response.status_code = 404
+    return response
+
+
+

@@ -1,0 +1,307 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Page Not Found - DreamLine Bus Service{% endblock %}
+
+{% block extra_css %}
+<style>
+    .error-container {
+        min-height: 70vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 0;
+    }
+    
+    .error-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        padding: 3rem;
+        text-align: center;
+        max-width: 600px;
+        width: 100%;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .error-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    }
+    
+    .error-icon {
+        font-size: 6rem;
+        color: #6c757d;
+        margin-bottom: 1.5rem;
+        animation: bounce 2s infinite;
+    }
+    
+    @keyframes bounce {
+        0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+        40% { transform: translateY(-10px); }
+        60% { transform: translateY(-5px); }
+    }
+    
+    .error-code {
+        font-size: 5rem;
+        font-weight: 900;
+        color: #28a745;
+        margin-bottom: 0.5rem;
+        line-height: 1;
+        text-shadow: 2px 2px 4px rgba(40, 167, 69, 0.2);
+    }
+    
+    .error-title {
+        font-size: 2rem;
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 1rem;
+    }
+    
+    .error-message {
+        font-size: 1.1rem;
+        color: #6c757d;
+        margin-bottom: 2rem;
+        line-height: 1.6;
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-bottom: 2rem;
+    }
+    
+    .btn-home {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        border: none;
+        border-radius: 50px;
+        padding: 0.8rem 2rem;
+        color: white;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .btn-home:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3);
+        color: white;
+        text-decoration: none;
+    }
+    
+    .btn-search {
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        border: none;
+        border-radius: 50px;
+        padding: 0.8rem 2rem;
+        color: white;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .btn-search:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 123, 255, 0.3);
+        color: white;
+        text-decoration: none;
+    }
+    
+    .helpful-links {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-top: 2rem;
+    }
+    
+    .helpful-links h5 {
+        color: #495057;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        justify-content: center;
+    }
+    
+    .link-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+    
+    .helpful-link {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #007bff;
+        text-decoration: none;
+        padding: 0.5rem;
+        border-radius: 5px;
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+    
+    .helpful-link:hover {
+        background: #e7f3ff;
+        color: #0056b3;
+        text-decoration: none;
+        transform: translateX(5px);
+    }
+    
+    .contact-support {
+        background: #fff3cd;
+        border: 1px solid #ffeaa7;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-top: 1.5rem;
+    }
+    
+    .contact-support h6 {
+        color: #856404;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        justify-content: center;
+    }
+    
+    .contact-info {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        flex-wrap: wrap;
+    }
+    
+    .contact-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #856404;
+        font-weight: 500;
+    }
+    
+    @media (max-width: 768px) {
+        .error-card {
+            margin: 1rem;
+            padding: 2rem;
+        }
+        
+        .error-code {
+            font-size: 4rem;
+        }
+        
+        .error-title {
+            font-size: 1.5rem;
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .btn-home, .btn-search {
+            width: 100%;
+            max-width: 300px;
+            justify-content: center;
+        }
+        
+        .contact-info {
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="error-container">
+    <div class="error-card">
+        <i class="bi bi-compass error-icon"></i>
+        <div class="error-code">404</div>
+        <h1 class="error-title">Oops! Page Not Found</h1>
+        <p class="error-message">
+            The page you're looking for seems to have taken a different route. 
+            Don't worry, our buses are more reliable than our links!
+        </p>
+        
+        <div class="action-buttons">
+            <a href="{% url 'home' %}" class="btn btn-home">
+                <i class="bi bi-house-door"></i>
+                Go Home
+            </a>
+            <a href="{% url 'search_trips' %}" class="btn btn-search">
+                <i class="bi bi-search"></i>
+                Search Trips
+            </a>
+        </div>
+        
+        <div class="helpful-links">
+            <h5>
+                <i class="bi bi-signpost-2"></i>
+                Popular Destinations
+            </h5>
+            <div class="link-grid">
+                <a href="{% url 'search_trips' %}?origin=nairobi" class="helpful-link">
+                    <i class="bi bi-geo-alt"></i>
+                    From Nairobi
+                </a>
+                <a href="{% url 'search_trips' %}?origin=mombasa" class="helpful-link">
+                    <i class="bi bi-geo-alt"></i>
+                    From Mombasa
+                </a>
+                <a href="{% url 'search_trips' %}?origin=kisumu" class="helpful-link">
+                    <i class="bi bi-geo-alt"></i>
+                    From Kisumu
+                </a>
+                <a href="{% url 'search_trips' %}?origin=eldoret" class="helpful-link">
+                    <i class="bi bi-geo-alt"></i>
+                    From Eldoret
+                </a>
+            </div>
+        </div>
+        
+        <div class="contact-support">
+            <h6>
+                <i class="bi bi-headset"></i>
+                Need Help?
+            </h6>
+            <p class="mb-2 text-center" style="color: #856404;">
+                Our customer support team is here to help you 24/7
+            </p>
+            <div class="contact-info">
+                <div class="contact-item">
+                    <i class="bi bi-telephone"></i>
+                    +254 700 123456
+                </div>
+                <div class="contact-item">
+                    <i class="bi bi-envelope"></i>
+                    support@dreamlinebus.com
+                </div>
+                <div class="contact-item">
+                    <i class="bi bi-chat-dots"></i>
+                    Live Chat
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

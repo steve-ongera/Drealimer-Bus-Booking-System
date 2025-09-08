@@ -1,0 +1,392 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Server Error - DreamLine Bus Service{% endblock %}
+
+{% block extra_css %}
+<style>
+    .error-container {
+        min-height: 70vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 0;
+    }
+    
+    .error-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        padding: 3rem;
+        text-align: center;
+        max-width: 600px;
+        width: 100%;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .error-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    }
+    
+    .error-icon {
+        font-size: 6rem;
+        color: #dc3545;
+        margin-bottom: 1.5rem;
+        animation: shake 1s infinite;
+    }
+    
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-5px); }
+        75% { transform: translateX(5px); }
+    }
+    
+    .error-code {
+        font-size: 5rem;
+        font-weight: 900;
+        color: #dc3545;
+        margin-bottom: 0.5rem;
+        line-height: 1;
+        text-shadow: 2px 2px 4px rgba(220, 53, 69, 0.2);
+    }
+    
+    .error-title {
+        font-size: 2rem;
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 1rem;
+    }
+    
+    .error-message {
+        font-size: 1.1rem;
+        color: #6c757d;
+        margin-bottom: 2rem;
+        line-height: 1.6;
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-bottom: 2rem;
+    }
+    
+    .btn-retry {
+        background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+        border: none;
+        border-radius: 50px;
+        padding: 0.8rem 2rem;
+        color: #212529;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+    }
+    
+    .btn-retry:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(255, 193, 7, 0.3);
+        color: #212529;
+        text-decoration: none;
+    }
+    
+    .btn-home {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        border: none;
+        border-radius: 50px;
+        padding: 0.8rem 2rem;
+        color: white;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .btn-home:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3);
+        color: white;
+        text-decoration: none;
+    }
+    
+    .error-details {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin: 2rem 0;
+        text-align: left;
+    }
+    
+    .error-details h5 {
+        color: #495057;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        justify-content: center;
+    }
+    
+    .error-steps {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .error-steps li {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+        padding: 0.5rem;
+        border-radius: 5px;
+        transition: background-color 0.3s ease;
+    }
+    
+    .error-steps li:hover {
+        background: #e9ecef;
+    }
+    
+    .step-icon {
+        color: #007bff;
+        font-size: 1.1rem;
+        margin-top: 0.1rem;
+    }
+    
+    .step-text {
+        flex: 1;
+        color: #495057;
+        line-height: 1.5;
+    }
+    
+    .technical-info {
+        background: #e7f3ff;
+        border: 1px solid #b8daff;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-top: 2rem;
+    }
+    
+    .technical-info h6 {
+        color: #004085;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        justify-content: center;
+    }
+    
+    .technical-details {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .tech-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #004085;
+        font-size: 0.95rem;
+    }
+    
+    .status-indicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: #dc3545;
+        color: white;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        margin: 1rem 0;
+    }
+    
+    .loading-spinner {
+        display: none;
+        margin-left: 0.5rem;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    .spinner {
+        animation: spin 1s linear infinite;
+    }
+    
+    @media (max-width: 768px) {
+        .error-card {
+            margin: 1rem;
+            padding: 2rem;
+        }
+        
+        .error-code {
+            font-size: 4rem;
+        }
+        
+        .error-title {
+            font-size: 1.5rem;
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .btn-retry, .btn-home {
+            width: 100%;
+            max-width: 300px;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="error-container">
+    <div class="error-card">
+        <i class="bi bi-exclamation-triangle error-icon"></i>
+        <div class="error-code">500</div>
+        <h1 class="error-title">Internal Server Error</h1>
+        <p class="error-message">
+            Our servers are experiencing some technical difficulties. 
+            We're working hard to fix this issue and get you back on track.
+        </p>
+        
+        <div class="status-indicator">
+            <i class="bi bi-x-circle"></i>
+            Service Temporarily Unavailable
+        </div>
+        
+        <div class="action-buttons">
+            <button class="btn btn-retry" onclick="retryPage()">
+                <i class="bi bi-arrow-clockwise"></i>
+                <span class="retry-text">Try Again</span>
+                <span class="loading-spinner">
+                    <i class="bi bi-arrow-repeat spinner"></i>
+                </span>
+            </button>
+            <a href="{% url 'home' %}" class="btn btn-home">
+                <i class="bi bi-house-door"></i>
+                Go Home
+            </a>
+        </div>
+        
+        <div class="error-details">
+            <h5>
+                <i class="bi bi-list-check"></i>
+                What you can do:
+            </h5>
+            <ul class="error-steps">
+                <li>
+                    <i class="bi bi-arrow-clockwise step-icon"></i>
+                    <span class="step-text">
+                        <strong>Refresh the page</strong> - Sometimes a simple refresh can resolve temporary issues
+                    </span>
+                </li>
+                <li>
+                    <i class="bi bi-clock step-icon"></i>
+                    <span class="step-text">
+                        <strong>Wait a few minutes</strong> - Our technical team may be performing maintenance
+                    </span>
+                </li>
+                <li>
+                    <i class="bi bi-wifi step-icon"></i>
+                    <span class="step-text">
+                        <strong>Check your connection</strong> - Ensure you have a stable internet connection
+                    </span>
+                </li>
+                <li>
+                    <i class="bi bi-arrow-left step-icon"></i>
+                    <span class="step-text">
+                        <strong>Try the previous page</strong> - Go back and try a different approach
+                    </span>
+                </li>
+                <li>
+                    <i class="bi bi-telephone step-icon"></i>
+                    <span class="step-text">
+                        <strong>Contact support</strong> - If the problem persists, our team is here to help
+                    </span>
+                </li>
+            </ul>
+        </div>
+        
+        <div class="technical-info">
+            <h6>
+                <i class="bi bi-gear"></i>
+                Technical Information
+            </h6>
+            <div class="technical-details">
+                <div class="tech-item">
+                    <i class="bi bi-clock"></i>
+                    <span id="current-time"></span>
+                </div>
+                <div class="tech-item">
+                    <i class="bi bi-server"></i>
+                    Error Code: HTTP 500
+                </div>
+                <div class="tech-item">
+                    <i class="bi bi-shield-check"></i>
+                    Session: Active
+                </div>
+                <div class="tech-item">
+                    <i class="bi bi-globe"></i>
+                    Region: Kenya
+                </div>
+            </div>
+            <p style="color: #004085; font-size: 0.9rem; text-align: center; margin: 0;">
+                <i class="bi bi-info-circle me-2"></i>
+                Our monitoring systems have been automatically notified of this issue.
+            </p>
+        </div>
+    </div>
+</div>
+
+<script>
+function retryPage() {
+    const retryBtn = document.querySelector('.btn-retry');
+    const retryText = document.querySelector('.retry-text');
+    const spinner = document.querySelector('.loading-spinner');
+    
+    // Show loading state
+    retryText.style.display = 'none';
+    spinner.style.display = 'inline-block';
+    retryBtn.disabled = true;
+    
+    // Reload page after short delay
+    setTimeout(() => {
+        location.reload();
+    }, 1000);
+}
+
+// Update current time
+function updateTime() {
+    const now = new Date();
+    document.getElementById('current-time').textContent = now.toLocaleString();
+}
+
+// Update time immediately and then every second
+updateTime();
+setInterval(updateTime, 1000);
+</script>
+{% endblock %}

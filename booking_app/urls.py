@@ -24,4 +24,8 @@ urlpatterns = [
     path('admin-seat-layouts/', views.admin_seat_layout, name='admin_seat_layout'),
     path('admin-seat-layouts/<int:layout_id>/', views.admin_seat_layout, name='admin_seat_layout_edit'),
     path('api/save-seat-layout/', views.save_seat_layout, name='save_seat_layout'),
+
+    path('booking/<str:booking_id>/not-found/', views.booking_not_found, name='booking_not_found'),
+    path('trip/not-available/',  views.trip_not_available, name='trip_not_available'),    
+    path('payment/failed/',  views.payment_failed,  name='payment_failed'),
 ]
