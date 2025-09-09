@@ -4,7 +4,124 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dream Line Bus Booking</title>
+    
+    <!-- SEO Meta Tags -->
+    <title>Dream Line Bus Booking Kenya | Book Bus Tickets Online | Nairobi to Mombasa</title>
+    <meta name="description" content="Book Dream Line bus tickets online in Kenya. Safe, comfortable, and affordable bus travel from Nairobi to Mombasa, Kisumu, Nakuru and more destinations. 24/7 online booking available.">
+    <meta name="keywords" content="dream line, dreamline, bus booking kenya, nairobi to mombasa bus, book bus tickets online, kenya bus travel, dream line bus, bus tickets nairobi, comfortable bus travel, safe bus journey, affordable bus fare, online bus booking, kenya transport, intercity bus, long distance bus, bus schedule kenya, dream line booking, bus reservation kenya, travel kenya, public transport kenya, nairobi bus station, mombasa bus, kisumu bus, nakuru bus, eldoret bus, dream line reviews, best bus company kenya, luxury bus kenya, express bus service">
+    <meta name="author" content="Dream Line Bus Services">
+    <meta name="robots" content="index, follow">
+    <meta name="language" content="English">
+    <meta name="revisit-after" content="7 days">
+    <meta name="distribution" content="global">
+    <meta name="rating" content="general">
+    
+    <!-- Geo Location Tags -->
+    <meta name="geo.region" content="KE">
+    <meta name="geo.country" content="Kenya">
+    <meta name="geo.placename" content="Nairobi, Kenya">
+    <meta name="ICBM" content="-1.286389, 36.817223">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://dreamline.co.ke/">
+    <meta property="og:title" content="Dream Line Bus Booking Kenya | Book Bus Tickets Online">
+    <meta property="og:description" content="Book Dream Line bus tickets online in Kenya. Safe, comfortable, and affordable bus travel to all major destinations. 24/7 online booking available.">
+    <meta property="og:image" content="{% static 'img/dreamline-og-image.jpg' %}">
+    <meta property="og:site_name" content="Dream Line Bus Services">
+    <meta property="og:locale" content="en_KE">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://dreamline.co.ke/">
+    <meta property="twitter:title" content="Dream Line Bus Booking Kenya | Book Bus Tickets Online">
+    <meta property="twitter:description" content="Book Dream Line bus tickets online in Kenya. Safe, comfortable, and affordable bus travel to all major destinations.">
+    <meta property="twitter:image" content="{% static 'img/dreamline-twitter-image.jpg' %}">
+    <meta name="twitter:site" content="@dreamlinekenva">
+    <meta name="twitter:creator" content="@dreamlinekenva">
+    
+    <!-- Favicons -->
+    <link rel="icon" type="image/x-icon" href="{% static 'img/favicon.ico' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'img/logo.png' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'img/logo.png' %}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'img/logo.png' %}">
+    <link rel="android-chrome-icon" sizes="192x192" href="{% static 'img/logo.png' %}">
+    <link rel="android-chrome-icon" sizes="512x512" href="{% static 'img/logo.png' %}">
+    <link rel="manifest" href="{% static 'site.webmanifest' %}">
+    <meta name="theme-color" content="#64b5f6">
+    <meta name="msapplication-TileColor" content="#64b5f6">
+    <meta name="msapplication-config" content="{% static 'browserconfig.xml' %}">
+    
+    <!-- Preload Critical Resources -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" as="style">
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" as="style">
+    
+    <!-- DNS Prefetch -->
+    <link rel="dns-prefetch" href="//fonts.googleapis.com">
+    <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://dreamline.co.ke/">
+    
+    <!-- Schema.org JSON-LD -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "TransportationCompany",
+        "name": "Dream Line Bus Services",
+        "alternateName": "Dream Line Kenya",
+        "url": "https://dreamline.co.ke",
+        "logo": "https://dreamline.co.ke/static/img/dreamline-logo.png",
+        "description": "Premier bus transportation company in Kenya offering comfortable and safe travel services across major destinations.",
+        "foundingDate": "2015",
+        "email": "info@dreamline.co.ke",
+        "telephone": "+254700123456",
+        "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "Tom Mboya Street",
+            "addressLocality": "Nairobi",
+            "addressCountry": "Kenya",
+            "addressRegion": "Nairobi County"
+        },
+        "geo": {
+            "@type": "GeoCoordinates",
+            "latitude": "-1.286389",
+            "longitude": "36.817223"
+        },
+        "areaServed": {
+            "@type": "Country",
+            "name": "Kenya"
+        },
+        "serviceType": "Bus Transportation",
+        "hasOfferCatalog": {
+            "@type": "OfferCatalog",
+            "name": "Bus Booking Services",
+            "itemListElement": [
+                {
+                    "@type": "Offer",
+                    "itemOffered": {
+                        "@type": "Service",
+                        "name": "Nairobi to Mombasa Bus",
+                        "description": "Daily bus service from Nairobi to Mombasa"
+                    }
+                },
+                {
+                    "@type": "Offer",
+                    "itemOffered": {
+                        "@type": "Service",
+                        "name": "Nairobi to Kisumu Bus",
+                        "description": "Daily bus service from Nairobi to Kisumu"
+                    }
+                }
+            ]
+        },
+        "sameAs": [
+            "https://facebook.com/dreamlinekenva",
+            "https://twitter.com/dreamlinekenva",
+            "https://instagram.com/dreamlinekenva"
+        ]
+    }
+    </script>
     
     <!-- Bootstrap CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
@@ -12,9 +129,6 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css" rel="stylesheet">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-    <!-- Bootstrap Icons -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css" rel="stylesheet">
     <!-- jQuery UI for autocomplete -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/themes/ui-lightness/jquery-ui.min.css" rel="stylesheet">
     <link href="{% static 'css/footer.css' %}" rel="stylesheet">
